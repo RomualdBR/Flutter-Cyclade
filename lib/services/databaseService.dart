@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:flutter_cyclade/models/resultatTestModel.dart';
 import 'package:flutter_cyclade/models/userModel.dart';
 import 'package:flutter_cyclade/models/motivationModel.dart';
 import 'package:flutter_cyclade/models/questionModel.dart';
@@ -243,6 +244,17 @@ class MongoDatabase {
     } catch (e) {
       print('Error creating test: $e');
       return "Erreur de création du test";
+    }
+  }
+
+  static Future<String> createResult(ResultatTest resultatTestOne) async {
+    if (_db == null) await connect();
+    try {
+      final result = await resultatTest.insertOne(resultatTestOne.toJson());
+      return result.isSuccess ? "Résultat-test créé avec succès" : "Erreur de création du résultat-test";
+    } catch (e) {
+      print('Error creating resultat-test: $e');
+      return "Erreur de création du resultat-test";
     }
   }
 

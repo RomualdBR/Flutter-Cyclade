@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cyclade/models/resultatTestModel.dart';
 import 'package:flutter_cyclade/services/databaseService.dart';
 import 'package:flutter_cyclade/models/questionModel.dart';
 import 'package:flutter_cyclade/models/testModel.dart';
@@ -160,6 +161,23 @@ class _AdminPageState
     Navigator.pushNamed(context, '/graphiques');
   }
 
+  Future<void> _createResult() async {
+    int score = 0;
+    DateTime date = DateTime(2018, 1, 13);
+    String id_user = "672100005b607787f5000000";
+    String id_test = "672134f722eed9ed84000000";
+
+    var newResult = ResultatTest(
+      id: ObjectId().toHexString(),
+      id_test: id_test,
+      id_user: id_user,
+      date: date,
+      score: score,
+    );
+
+    String result = await MongoDatabase.createResult(newResult);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -181,6 +199,12 @@ class _AdminPageState
                 _navigateToCreateTest,
             child: const Text(
                 "Créer un Test"),
+          ),
+          ElevatedButton(
+            onPressed:
+                _createResult,
+            child: const Text(
+                "Créer un Résultat générique"),
           ),
           const SizedBox(height: 20),
           ..._tests.map((test) => Card(
