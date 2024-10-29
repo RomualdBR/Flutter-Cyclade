@@ -1,8 +1,9 @@
-// file path: services/databaseService.dart
 import 'dart:developer';
 import 'package:flutter_cyclade/models/userModel.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 import '../constant.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
 
 class MongoDatabase {
   static Db? _db;
@@ -62,5 +63,18 @@ class MongoDatabase {
       log('Insertion error: ${e.toString()}');
       return "Insertion error";
     }
+  }
+
+  static String encryptPassword(
+      String password) {
+    final bytes = utf8.encode(password);
+    final hash = sha256.convert(bytes);
+    return hash.toString();
+  }
+
+  static authenticateUser(String email, String mot_de_passe) async {
+    var motDePasseCrypte = encryptPassword(mot_de_passe);
+    var existingUser = await user.findOne({'email': email,'mot_de_passe': motDePasseCrypte});
+    return existingUser;
   }
 }
