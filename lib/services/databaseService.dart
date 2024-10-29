@@ -43,7 +43,15 @@ class MongoDatabase {
     }
   }
 
+  // Ensures connection before using the user collection
+  static Future<bool> ensureConnection() async {
+    if (!_isInitialized) await connect();
+    return _isInitialized;
+  }
+
   static Future<bool> emailExists(String email) async {
+    if (!await ensureConnection()) return false;
+
     try {
       var existingUser = await user.findOne({'email': email});
       return existingUser != null;
@@ -54,7 +62,7 @@ class MongoDatabase {
   }
 
   static Future<String> insert(User userData) async {
-    if (!_isInitialized) await connect();
+    if (!await ensureConnection()) return "Connection error";
 
     try {
       var result = await user.insertOne(userData.toJson());
@@ -65,16 +73,22 @@ class MongoDatabase {
     }
   }
 
-  static String encryptPassword(
-      String password) {
+  static String encryptPassword(String password) {
     final bytes = utf8.encode(password);
     final hash = sha256.convert(bytes);
     return hash.toString();
   }
 
-  static Future authenticateUser(String email, String mot_de_passe) async {
-    var motDePasseCrypte = encryptPassword(mot_de_passe);
-    var existingUser = await user.findOne({'email': email,'mot_de_passe': motDePasseCrypte});
-    return existingUser;
+  static Future<User?> authenticateUser(String email, String mot_de_passe) async {
+    if (!await ensureConnection()) return null;
+
+    try {
+      var motDePasseCrypte = encryptPassword(mot_de_passe);
+      var existingUser = await user.findOne({'email': email, 'mot_de_passe': motDePasseCrypte});
+      return existingUser != null ? User.fromJson(existingUser) : null;
+    } catch (e) {
+      log('Authentication error: ${e.toString()}');
+      return null;
+    }
   }
 }

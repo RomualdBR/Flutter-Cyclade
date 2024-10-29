@@ -37,6 +37,7 @@ class _MyHomePageState extends State<ConnexionPage> {
       final user = await MongoDatabase.authenticateUser(_email, _mot_de_passe);
 
       if (user != null) {
+        userData = user;
         // User authenticated successfully, redirect to home page
         Navigator.pushNamed(context, '/');
       } else {
