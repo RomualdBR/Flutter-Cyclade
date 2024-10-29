@@ -18,17 +18,11 @@ class AccueilPage
 
 class _MyHomePageState
     extends State<AccueilPage> {
-  int _counter = 0;
 
   void onPressed() {
     Navigator.pushNamed(context, '/inscription');
   }
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
