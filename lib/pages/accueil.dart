@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cyclade/constant.dart';
 import 'package:flutter_cyclade/services/databaseService.dart';
 
 
@@ -47,9 +48,15 @@ class _MyHomePageState
                 .inversePrimary,
         title: const Text("Accueil"),
       ),
+
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+        Text(userData.id.toString()),
+        Text("Nom: "+userData.nom.toString()),
+        Text("Prénom: "+userData.prenom.toString()),
+        Text("Email: "+userData.email.toString()),
+
         ElevatedButton(
           onPressed: onPressed,
           child: const Text("Inscription"),

@@ -42,6 +42,16 @@ class MongoDatabase {
     }
   }
 
+  static Future<bool> emailExists(String email) async {
+    try {
+      var existingUser = await user.findOne({'email': email});
+      return existingUser != null;
+    } catch (e) {
+      log('Email check error: ${e.toString()}');
+      return false;
+    }
+  }
+
   static Future<String> insert(User userData) async {
     if (!_isInitialized) await connect();
 
