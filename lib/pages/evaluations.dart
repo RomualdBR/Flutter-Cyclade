@@ -32,7 +32,7 @@ class _MyHomePageState
             Theme.of(context)
                 .colorScheme
                 .inversePrimary,
-        title: const Text("Evaluation"),
+        title: const Text("Evaluations"),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
