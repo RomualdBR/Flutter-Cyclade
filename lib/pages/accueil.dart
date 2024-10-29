@@ -22,6 +22,19 @@ class _MyHomePageState
   void onPressed() {
     Navigator.pushNamed(context, '/inscription');
   }
+  void connexion() {
+    Navigator.pushNamed(context, '/connexion');
+  }
+  void profile() {
+    Navigator.pushNamed(context, '/profile');
+  }
+  void evaluations() {
+    Navigator.pushNamed(context, '/evaluations');
+  }
+  void graphiques() {
+    Navigator.pushNamed(context, '/graphiques');
+  }
+
 
 
   @override
@@ -34,11 +47,29 @@ class _MyHomePageState
                 .inversePrimary,
         title: const Text("Accueil"),
       ),
-      body: Column(children: [
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
         ElevatedButton(
           onPressed: onPressed,
           child: const Text("Inscription"),
-        )
+        ),
+        ElevatedButton(
+          onPressed: connexion,
+          child: const Text("Connexion"),
+        ),
+        ElevatedButton(
+          onPressed: profile,
+          child: const Text("Profile"),
+        ),
+        ElevatedButton(
+          onPressed: evaluations,
+          child: const Text("Evaluation"),
+        ),
+        ElevatedButton(
+          onPressed: graphiques,
+          child: const Text("Graphiques"),
+        ),
       ]),
     );
   }
