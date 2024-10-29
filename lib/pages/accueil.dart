@@ -32,11 +32,12 @@ class _MyHomePageState
   void evaluations() {
     Navigator.pushNamed(context, '/evaluations');
   }
+  void resultats() {
+    Navigator.pushNamed(context, '/resultats');
+  }
   void graphiques() {
     Navigator.pushNamed(context, '/graphiques');
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +72,11 @@ class _MyHomePageState
         ),
         ElevatedButton(
           onPressed: evaluations,
-          child: const Text("Evaluation"),
+          child: const Text("Evaluations"),
+        ),
+        ElevatedButton(
+          onPressed: resultats,
+          child: const Text("Résultats"),
         ),
         ElevatedButton(
           onPressed: graphiques,
