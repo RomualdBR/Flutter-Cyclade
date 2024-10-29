@@ -1,6 +1,8 @@
 import 'dart:developer';
 import 'package:flutter_cyclade/models/userModel.dart';
 import 'package:flutter_cyclade/models/motivationModel.dart';
+import 'package:flutter_cyclade/models/questionModel.dart';
+import 'package:flutter_cyclade/models/testModel.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 import '../constant.dart';
 import 'package:crypto/crypto.dart';
@@ -160,6 +162,112 @@ class MongoDatabase {
       }
     } catch (e) {
       log('Error creating default motivations: ${e.toString()}');
+    }
+  }
+
+
+  static Future<String> createQuestion(Question questionOne) async {
+    if (!await ensureConnection()) return "Connection error";
+
+    try {
+      var result = await question.insertOne(questionOne.toJson());
+      return result.isSuccess ? "Question créée avec succès" : "Erreur de création de la question";
+    } catch (e) {
+      log('Error creating question: ${e.toString()}');
+      return "Erreur de création de la question";
+    }
+  }
+
+  static Future<List<Test>> getAllTests() async {
+    if (!await ensureConnection()) return [];
+
+    try {
+      final testsData = await test.find().toList();
+      return testsData.map((json) => Test.fromJson(json)).toList();
+    } catch (e) {
+      log('Error fetching tests: ${e.toString()}');
+      return [];
+    }
+  }
+
+  static Future<List<Question>> getQuestionsByTestId(String testId) async {
+    if (!await ensureConnection()) return [];
+
+    try {
+      final questionsData = await question.find({'id_test': testId}).toList();
+      return questionsData.map((json) => Question.fromJson(json)).toList();
+    } catch (e) {
+      log('Error fetching questions for test $testId: ${e.toString()}');
+      return [];
+    }
+  }
+
+  static Future<String> updateQuestion(Question questionOne) async {
+    if (_db == null) await connect();
+
+    try {
+      final result = await question.updateOne(
+        where.eq('_id', ObjectId.fromHexString(questionOne.id)),
+        modify
+            .set('intitule', questionOne.intitule)
+            .set('proposition_1', questionOne.proposition_1)
+            .set('proposition_2', questionOne.proposition_2)
+            .set('proposition_3', questionOne.proposition_3)
+            .set('proposition_4', questionOne.proposition_4)
+            .set('reponse', questionOne.reponse),
+      );
+      return result.isSuccess ? "Question mise à jour avec succès" : "Erreur de mise à jour de la question";
+    } catch (e) {
+      print('Error updating question: $e');
+      return "Erreur de mise à jour de la question";
+    }
+  }
+
+  static Future<String> deleteQuestion(String questionId) async {
+    if (_db == null) await connect();
+
+    try {
+      final result = await question.deleteOne({'_id': ObjectId.fromHexString(questionId)});
+      return result.isSuccess ? "Question supprimée avec succès" : "Erreur de suppression de la question";
+    } catch (e) {
+      print('Error deleting question: $e');
+      return "Erreur de suppression de la question";
+    }
+  }
+
+  static Future<String> createTest(Test testOne) async {
+    if (_db == null) await connect();
+    try {
+      final result = await test.insertOne(testOne.toJson());
+      return result.isSuccess ? "Test créé avec succès" : "Erreur de création du test";
+    } catch (e) {
+      print('Error creating test: $e');
+      return "Erreur de création du test";
+    }
+  }
+
+  static Future<String> updateTest(Test testOne) async {
+    if (_db == null) await connect();
+    try {
+      final result = await test.updateOne(
+        where.eq('_id', ObjectId.fromHexString(testOne.id)),
+        modify.set('nom_discipline', testOne.nom_discipline),
+      );
+      return result.isSuccess ? "Test mis à jour avec succès" : "Erreur de mise à jour du test";
+    } catch (e) {
+      print('Error updating test: $e');
+      return "Erreur de mise à jour du test";
+    }
+  }
+
+  static Future<String> deleteTest(String testId) async {
+    if (_db == null) await connect();
+    try {
+      final result = await test.deleteOne({'_id': ObjectId.fromHexString(testId)});
+      return result.isSuccess ? "Test supprimé avec succès" : "Erreur de suppression du test";
+    } catch (e) {
+      print('Error deleting test: $e');
+      return "Erreur de suppression du test";
     }
   }
 }
