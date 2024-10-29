@@ -32,11 +32,12 @@ class _MyHomePageState
           title: const Text("Profile")),
       body: Column(
         children: [
-          ElevatedButton(
-            onPressed: () {},
-            child: const Text(
-                "Se déconnecter"),
-          ),
+          if (userData.id != "0")
+            ElevatedButton(
+              onPressed: _disconnectUser,
+              child: const Text(
+                  "Se déconnecter"),
+            ),
         ],
       ),
     );

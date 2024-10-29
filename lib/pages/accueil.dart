@@ -51,15 +51,16 @@ class _MyHomePageState extends State<AccueilPage> {
           Text("Nom: " + userData.nom.toString()),
           Text("Prénom: " + userData.prenom.toString()),
           Text("Email: " + userData.email.toString()),
-
-          ElevatedButton(
-            onPressed: onPressed,
-            child: const Text("Inscription"),
-          ),
-          ElevatedButton(
-            onPressed: connexion,
-            child: const Text("Connexion"),
-          ),
+          if (userData.id.toString() == "0")
+            ElevatedButton(
+              onPressed: onPressed,
+              child: const Text("Inscription"),
+            ),
+          if (userData.id.toString() == "0")
+            ElevatedButton(
+              onPressed: connexion,
+              child: const Text("Connexion"),
+            ),
           ElevatedButton(
             onPressed: profile,
             child: const Text("Profile"),
