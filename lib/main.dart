@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cyclade/services/databaseService.dart';
+import 'pages/graph.dart'; 
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await MongoDatabase.connect();
+void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  
   const MyApp({super.key});
 
   @override
@@ -42,6 +39,13 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _navigateToGraphPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => GraphPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,12 +57,15 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
+            const Text('You have pushed the button this many times:'),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _navigateToGraphPage,
+              child: const Text('Voir les Graphiques'),
             ),
           ],
         ),
