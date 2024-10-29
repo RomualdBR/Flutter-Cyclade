@@ -72,7 +72,7 @@ class MongoDatabase {
     return hash.toString();
   }
 
-  static authenticateUser(String email, String mot_de_passe) async {
+  static Future authenticateUser(String email, String mot_de_passe) async {
     var motDePasseCrypte = encryptPassword(mot_de_passe);
     var existingUser = await user.findOne({'email': email,'mot_de_passe': motDePasseCrypte});
     return existingUser;

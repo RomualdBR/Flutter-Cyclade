@@ -109,7 +109,7 @@ class _MyHomePageState extends State<ConnexionPage> {
               ElevatedButton(
                 onPressed: _getUser,
                 child: const Text(
-                    "S'inscrire"),
+                    "Se connecter"),
               ),
             ],
           ),
