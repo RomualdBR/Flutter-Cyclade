@@ -5,6 +5,7 @@ import 'package:flutter_cyclade/pages/connexion.dart';
 import 'package:flutter_cyclade/pages/profile.dart';
 import 'package:flutter_cyclade/pages/evaluations.dart';
 import 'package:flutter_cyclade/pages/graph.dart';
+import 'package:flutter_cyclade/pages/resultats.dart';
 
 
 
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => const ProfilePage(),
         '/evaluations': (context) => const EvaluationsPage(),
         '/graphiques': (context) => GraphPage(),
+        '/resultats': (context) => const ResultatsPage(),
       },
     );
   }
