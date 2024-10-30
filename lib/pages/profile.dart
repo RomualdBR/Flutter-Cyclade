@@ -13,12 +13,14 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<ProfilePage> {
+
   final _formkey = GlobalKey<FormState>();
   String prenom = userData.prenom.toString();
   String nom = userData.nom.toString();
   String email = userData.email.toString();
   String adresse = userData.adresse.toString();
   String formErrorText = "";
+
 
   void _disconnectUser() async {
     if (userData.id != "0") {
