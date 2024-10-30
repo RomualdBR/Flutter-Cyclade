@@ -24,4 +24,7 @@ class ResultatTest {
         score: json['score'] ?? 0,
         date: json['date'] ?? DateTime(2024,9,7,17,30),
       );
+
+   @override
+  String toString() => '$score';
 }

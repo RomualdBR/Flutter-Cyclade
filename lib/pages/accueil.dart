@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cyclade/constant.dart';
-import 'package:flutter_cyclade/services/databaseService.dart';
 
 class AccueilPage extends StatefulWidget {
   const AccueilPage({super.key});
@@ -41,6 +40,7 @@ class _MyHomePageState extends State<AccueilPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Accueil"),
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

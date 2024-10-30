@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cyclade/models/testModel.dart';
-import 'package:flutter_cyclade/services/databaseService.dart';
+import 'package:flutter_cyclade/services/testService.dart';
 
 class EditTestPage extends StatefulWidget {
   final Test test;
@@ -26,7 +26,7 @@ class _EditTestPageState extends State<EditTestPage> {
       nom_discipline: _testNameController.text.trim(),
     );
 
-    final result = await MongoDatabase.updateTest(updatedTest);
+    final result = await TestService.updateTest(updatedTest);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result)));
     Navigator.pop(context, updatedTest); // Retourne le test mis à jour
   }
