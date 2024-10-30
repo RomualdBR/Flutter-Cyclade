@@ -3,7 +3,7 @@ import 'package:mongo_dart/mongo_dart.dart';
 class User {
   final String id;
   final String nom;
-  late final String prenom;
+  final String prenom;
   final String email;
   final int age;
   final String adresse;
