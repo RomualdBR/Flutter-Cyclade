@@ -25,9 +25,7 @@ class _MyHomePageState extends State<AccueilPage> {
     Navigator.pushNamed(context, '/evaluations');
   }
 
-  void resultats() {
-    Navigator.pushNamed(context, '/resultats');
-  }
+  
 
   void graphiques() {
     Navigator.pushNamed(context, '/graphiques');
@@ -61,18 +59,17 @@ class _MyHomePageState extends State<AccueilPage> {
               onPressed: connexion,
               child: const Text("Connexion"),
             ),
-          ElevatedButton(
-            onPressed: profile,
-            child: const Text("Profile"),
-          ),
-          ElevatedButton(
-            onPressed: evaluations,
-            child: const Text("Evaluations"),
-          ),
-          ElevatedButton(
-            onPressed: resultats,
-            child: const Text("Résultats"),
-          ),
+          if (userData.id.toString() != "0")
+            ElevatedButton(
+              onPressed: profile,
+              child: const Text("Profile"),
+            ),
+          if (userData.id.toString() != "0")
+            ElevatedButton(
+              onPressed: evaluations,
+              child: const Text("Evaluations"),
+            ),
+          
           
 
           // Bouton "Panel Admin" visible uniquement si l'utilisateur est admin
