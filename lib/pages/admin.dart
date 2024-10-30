@@ -117,8 +117,8 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   Future<void> _createResult() async {
-    int score = 0;
-    DateTime date = DateTime(2018, 1, 13);
+    int score = 18;
+    DateTime date = DateTime(2018, 1, 14);
     String id_user = "672100005b607787f5000000";
     String id_test = "672134f722eed9ed84000000";
 

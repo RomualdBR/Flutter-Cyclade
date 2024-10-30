@@ -1,7 +1,34 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_cyclade/services/databaseService.dart';
 
-class GraphPage extends StatelessWidget {
+class GraphPage extends StatefulWidget {
+  @override
+  _GraphPageState createState() => _GraphPageState();
+}
+
+class _GraphPageState extends State<GraphPage> {
+  Map<String, double> scoresParDate = {};
+  double tauxReussiteGeneral = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  void fetchData() async {
+  scoresParDate = await MongoDatabase().calculerScoresParDate();
+  tauxReussiteGeneral = await MongoDatabase().calculerTauxReussiteGeneral();
+  print("Scores par date: $scoresParDate"); 
+  print("Taux de réussite général: $tauxReussiteGeneral"); 
+
+  setState(() {});
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,7 +47,7 @@ class GraphPage extends StatelessWidget {
             ),
             ChartCard(
               title: 'Taux de Réussite Général',
-              child: LineChartWidget(),
+              child: LineChartWidget(scoresParDate: scoresParDate),
             ),
           ],
         ),
@@ -38,8 +65,7 @@ class ChartCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      onEnter: (_) => _onHover(context, true),
-      onExit: (_) => _onHover(context, false),
+     
       child: AnimatedContainer(
         duration: Duration(milliseconds: 200),
         curve: Curves.easeInOut,
@@ -115,52 +141,62 @@ class BarChartWidget extends StatelessWidget {
 }
 
 class LineChartWidget extends StatelessWidget {
+  final Map<String, double> scoresParDate;  
+  
+  LineChartWidget({required this.scoresParDate});
+  
   @override
   Widget build(BuildContext context) {
+    // Trier les scores par date en ordre croissant
+    final sortedEntries = scoresParDate.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+
+    
+    final spots = sortedEntries.asMap().entries.map((entry) {
+      final index = entry.key.toDouble(); 
+      final score = entry.value.value;   
+      return FlSpot(index, score);
+    }).toList();
+
+    
+    final labels = sortedEntries.map((entry) => entry.key).toList();
+
     return LineChart(
       LineChartData(
-        gridData: FlGridData(show: false), 
-        titlesData: FlTitlesData(
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 40,
-              getTitlesWidget: (value, meta) {
-                return Text('${value.toInt()}%', style: TextStyle(color: Colors.white)); 
-              },
-            ),
+        lineBarsData: [
+          LineChartBarData(
+            spots: spots,
+            isCurved: true,
+            color: Colors.blue,
+            dotData: FlDotData(show: true),
           ),
+        ],
+        titlesData: FlTitlesData(
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 38,
               getTitlesWidget: (value, meta) {
-                switch (value.toInt()) {
-                  case 0: return Text('2010', style: TextStyle(color: Colors.white));
-                  case 2: return Text('2013', style: TextStyle(color: Colors.white));
-                  case 3: return Text('2014', style: TextStyle(color: Colors.white));
-                  default: return Text(''); // Only show years for specific x values
+                final index = value.toInt();
+                if (index >= 0 && index < labels.length) {
+                  return Text(
+                    labels[index], 
+                    style: TextStyle(color: Colors.white),
+                  );
                 }
+                return Text('');
               },
+              interval: 1, 
             ),
           ),
-        ),
-        lineBarsData: [
-          LineChartBarData(
-            spots: [
-              FlSpot(0, 30),
-              FlSpot(1, 50),
-              FlSpot(2, 70),
-              FlSpot(3, 60),
-              FlSpot(4, 90),
-            ],
-            isCurved: true,
-            color: Colors.blue,
-            dotData: FlDotData(show: true), 
-            belowBarData: BarAreaData(show: false), 
+          leftTitles: AxisTitles( // Désactiver les titres de l'axe Y
+            sideTitles: SideTitles(showTitles: false),
           ),
-        ],
-        borderData: FlBorderData(show: true, border: Border.all(color: Colors.white)),
+          topTitles: AxisTitles( // Désactiver les titres en haut du graphique
+            sideTitles: SideTitles(showTitles: false),
+          ),
+        ),
+        borderData: FlBorderData(show: false),
+        gridData: FlGridData(show: true),
       ),
     );
   }
