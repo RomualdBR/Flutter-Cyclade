@@ -51,10 +51,10 @@ class _GraphPageState extends State<GraphPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Taux de Réussite', style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+        title: Text('Taux de Réussite', style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0))),
+        backgroundColor: const Color.fromARGB(255, 230, 226, 226),
       ),
-      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+      backgroundColor: const Color.fromARGB(255, 225, 225, 225),
       body: Padding(
         padding: const EdgeInsets.all(19.0),
         child: PageView(
@@ -145,8 +145,14 @@ class BarChartWidget extends StatelessWidget {
         x: index,
         barRods: [
           BarChartRodData(
-            toY: pourcentageReussite, // Affichage du pourcentage de réussite
+            toY: pourcentageReussite, 
             color: Colors.blue,
+            width: 22,
+            backDrawRodData: BackgroundBarChartRodData(
+              show: true,
+              toY: 100, 
+              color: Colors.blue.withOpacity(0.2),
+            ),
           ),
         ],
       );
@@ -154,15 +160,18 @@ class BarChartWidget extends StatelessWidget {
 
     return BarChart(
       BarChartData(
-        
         alignment: BarChartAlignment.spaceEvenly,
         barGroups: barGroups,
         titlesData: FlTitlesData(
-          topTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: false)
-          ),
           leftTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: false, ),
+            sideTitles: SideTitles(
+              showTitles: false,
+              reservedSize: 40,
+              interval: 20,
+              getTitlesWidget: (value, meta) {
+                return Text('${value.toInt()}%', style: TextStyle(color: Colors.white));
+              },
+            ),
           ),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
@@ -170,22 +179,35 @@ class BarChartWidget extends StatelessWidget {
               reservedSize: 38,
               getTitlesWidget: (value, meta) {
                 int index = value.toInt();
-                
+                if (index >= 0 && index < disciplines.length) {
                   return Text(
                     disciplines[index],
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
                   );
-                
+                }
                 return Text('');
               },
-              
             ),
+            
+          ),
+            topTitles: AxisTitles( 
+            sideTitles: SideTitles(showTitles: false),
           ),
         ),
+        
         borderData: FlBorderData(show: false),
         gridData: FlGridData(show: false),
-        
-        
+        barTouchData: BarTouchData(
+          touchTooltipData: BarTouchTooltipData(
+            // tooltipBgColor: Colors.black,
+            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              return BarTooltipItem(
+                '${rod.toY.toStringAsFixed(1)}%', //  pourcentage avec une décimale
+                TextStyle(color: Colors.white),
+              );
+            },
+          ),
+        ),
       ),
     );
   }
@@ -233,7 +255,7 @@ class LineChartWidget extends StatelessWidget {
                 if (index >= 0 && index < labels.length) {
                   return Text(
                     labels[index], 
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
                   );
                 }
                 return Text('');
@@ -241,10 +263,10 @@ class LineChartWidget extends StatelessWidget {
               interval: 1, 
             ),
           ),
-          leftTitles: AxisTitles( // Désactiver les titres de l'axe Y
+          leftTitles: AxisTitles( 
             sideTitles: SideTitles(showTitles: false),
           ),
-          topTitles: AxisTitles( // Désactiver les titres en haut du graphique
+          topTitles: AxisTitles( 
             sideTitles: SideTitles(showTitles: false),
           ),
         ),
