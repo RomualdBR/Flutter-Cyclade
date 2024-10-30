@@ -1,16 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_cyclade/models/testModel.dart';
+import 'package:flutter_cyclade/pages/passTest.dart';
+import 'package:flutter_cyclade/services/testService.dart';
 
 class EvaluationsPage extends StatefulWidget {
   const EvaluationsPage({super.key});
 
   @override
   State<EvaluationsPage> createState() => _MyHomePageState();
+
 }
 
 class _MyHomePageState extends State<EvaluationsPage> {
-  void java() {}
-  void algo() {}
-  void htmlcss() {}
+  List<Test> _tests = [];
+
+  void onPressed(String id) {
+    Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => PassTestPage(testId: id),
+  ),
+);
+  }
+  
+  @override
+  void initState() {
+    super.initState();
+  _loadTest();
+  }
+
+  Future<void> _loadTest() async {
+    _tests = await TestService.getAllTests();
+
+    setState(() {});
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,18 +44,10 @@ class _MyHomePageState extends State<EvaluationsPage> {
         title: const Text("Evaluations"),
       ),
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        ElevatedButton(
-          onPressed: java,
-          child: const Text("Java"),
-        ),
-        ElevatedButton(
-          onPressed: algo,
-          child: const Text("Algorithmie"),
-        ),
-        ElevatedButton(
-          onPressed: htmlcss,
-          child: const Text("HTML/CSS"),
-        ),
+  ..._tests.map((test) => ElevatedButton(
+    onPressed: () => onPressed(test.id),
+    child: Text(test.nom_discipline),
+        )),
       ]),
     );
   }
