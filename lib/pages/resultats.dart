@@ -13,6 +13,7 @@ class _MyHomePageState extends State<ResultatsPage> {
     super.initState();
   }
 
+  // Contenu de la page
   @override
   Widget build(BuildContext context) {
     return Scaffold(
