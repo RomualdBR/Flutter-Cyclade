@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cyclade/services/databaseService.dart';
 import 'package:flutter_cyclade/models/questionModel.dart';
+import 'package:flutter_cyclade/services/questionService.dart';
 import 'package:mongo_dart/mongo_dart.dart' show ObjectId;
+import 'package:flutter_cyclade/services/testService.dart';
 
 class CreateQuestionPage extends StatefulWidget {
   final String testId;
@@ -46,7 +48,7 @@ class _CreateQuestionPageState extends State<CreateQuestionPage> {
       reponse: correctAnswer,
     );
 
-    String result = await MongoDatabase.createQuestion(newQuestion);
+    String result = await QuestionService.createQuestion(newQuestion);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result)));
     Navigator.pop(context, newQuestion); // Retourne la nouvelle question
   }
