@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cyclade/constant.dart';
 import 'package:flutter_cyclade/services/databaseService.dart';
+import 'package:flutter_cyclade/userProvider.dart';
+import 'package:provider/provider.dart';
 
 class AccueilPage extends StatefulWidget {
   const AccueilPage({super.key});
@@ -40,6 +42,7 @@ class _MyHomePageState extends State<AccueilPage> {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Accueil"),
@@ -47,16 +50,16 @@ class _MyHomePageState extends State<AccueilPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(userData.id.toString()),
-          Text("Nom: " + userData.nom.toString()),
-          Text("Prénom: " + userData.prenom.toString()),
-          Text("Email: " + userData.email.toString()),
-          if (userData.id.toString() == "0")
+          Text(userProvider.user.id.toString()),
+          Text("Nom: " + userProvider.user.nom.toString()),
+          Text("Prénom: " + userProvider.user.prenom.toString()),
+          Text("Email: " + userProvider.user.email.toString()),
+          if (userProvider.user.id.toString() == "0")
             ElevatedButton(
               onPressed: onPressed,
               child: const Text("Inscription"),
             ),
-          if (userData.id.toString() == "0")
+          if (userProvider.user.id.toString() == "0")
             ElevatedButton(
               onPressed: connexion,
               child: const Text("Connexion"),
@@ -76,7 +79,7 @@ class _MyHomePageState extends State<AccueilPage> {
           
 
           // Bouton "Panel Admin" visible uniquement si l'utilisateur est admin
-          if (userData.role == true)
+          if (userProvider.user.role == true)
             ElevatedButton(
               onPressed: admin,
               child: const Text("Panel Admin"),

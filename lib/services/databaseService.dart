@@ -68,6 +68,7 @@ class MongoDatabase {
             .set('nom', userData.nom)
             .set('email', userData.email)
             .set('adresse', userData.adresse)
+            .set('id_motivation', userData.id_motivation)
       );
       if (result.isAcknowledged) {
         print("succes");

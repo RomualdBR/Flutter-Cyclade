@@ -7,17 +7,24 @@ import 'package:flutter_cyclade/pages/evaluations.dart';
 import 'package:flutter_cyclade/pages/graph.dart';
 import 'package:flutter_cyclade/pages/resultats.dart';
 import 'package:flutter_cyclade/pages/admin.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_cyclade/pages/createTest.dart';
 import 'package:flutter_cyclade/pages/createQuestion.dart';
 import 'package:flutter_cyclade/pages/editQuestion.dart';
 import 'package:flutter_cyclade/pages/editTest.dart';
-
-
-
-
+import './userProvider.dart';
+import './motivationProvider.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => MotivationProvider()), // Ajout du MotivationProvider
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
