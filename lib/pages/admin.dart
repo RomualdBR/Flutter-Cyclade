@@ -156,6 +156,10 @@ class _AdminPageState
       });
     }
   }
+  
+  void resultats() {
+    Navigator.pushNamed(context, '/resultats');
+  }
 
   void graphiques() {
     Navigator.pushNamed(context, '/graphiques');
@@ -188,6 +192,10 @@ class _AdminPageState
         padding:
             const EdgeInsets.all(8.0),
         children: [
+          ElevatedButton(
+            onPressed: resultats,
+            child: const Text("Résultats"),
+          ),
           ElevatedButton(
             onPressed:
                 graphiques,

@@ -282,4 +282,33 @@ class MongoDatabase {
       return "Erreur de suppression du test";
     }
   }
+
+  static Future<List<Map<String, dynamic>>> getPassedTests() async {
+  if (!await ensureConnection()) return [];
+
+  try {
+    final results = await resultatTest.find().toList();
+
+    List<Map<String, dynamic>> resultList = [];
+    for (var result in results) {
+      var userDetails = await user.findOne({'_id': ObjectId.fromHexString(result['id_user'])});
+      
+      var testDetails = await test.findOne({'_id': ObjectId.fromHexString(result['id_test'])});
+
+      if (userDetails != null && testDetails != null) {
+        resultList.add({
+          'user_name': userDetails['nom'],
+          'test_name': testDetails['nom_discipline'],
+          'date': result['date'],
+          'score': result['score'],
+        });
+      }
+    }
+
+    return resultList;
+  } catch (e) {
+    log('Error fetching passed tests: ${e.toString()}');
+    return [];
+  }
+  }
 }

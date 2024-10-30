@@ -26,9 +26,7 @@ class _MyHomePageState extends State<AccueilPage> {
     Navigator.pushNamed(context, '/evaluations');
   }
 
-  void resultats() {
-    Navigator.pushNamed(context, '/resultats');
-  }
+  
 
   void graphiques() {
     Navigator.pushNamed(context, '/graphiques');
@@ -69,10 +67,7 @@ class _MyHomePageState extends State<AccueilPage> {
             onPressed: evaluations,
             child: const Text("Evaluations"),
           ),
-          ElevatedButton(
-            onPressed: resultats,
-            child: const Text("Résultats"),
-          ),
+          
           
 
           // Bouton "Panel Admin" visible uniquement si l'utilisateur est admin
