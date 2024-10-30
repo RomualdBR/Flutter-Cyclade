@@ -1,5 +1,7 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart'; // Bibliothèque pour les graphiques
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_cyclade/models/questionModel.dart';
 import 'package:flutter_cyclade/models/resultatTestModel.dart';
 import 'package:flutter_cyclade/models/testModel.dart';
@@ -14,57 +16,56 @@ class GraphPage extends StatefulWidget {
 }
 
 class _GraphPageState extends State<GraphPage> {
-  Map<String, double> scoresParDate = {}; // Stockage des scores par date
-  double tauxReussiteGeneral = 0.0; // Taux de réussite global
-
-  List<Test> _tests = []; // Liste des tests chargés
-  Map<String, List<ResultatTest>> _testResults = {}; // Résultats par test
+  Map<String, double> scoresParDate = {};
+  double tauxReussiteGeneral = 0.0;
+  List<Test> _tests = [];
+  Map<String, List<ResultatTest>> _testResults = {};
 
   @override
   void initState() {
     super.initState();
-    fetchData(); // Récupération des données de scores et taux de réussite
-    _loadResultsByTests(); // Chargement des résultats par test
+    fetchData();
+    _loadResultsByTests();
   }
 
   Future<void> _loadResultsByTests() async {
-    _tests = await TestService.getAllTests(); // Récupérer tous les tests
+    _tests = await TestService.getAllTests();
     for (var test in _tests) {
-      // Récupération des scores pour chaque test
-      _testResults[test.id] = await MongoDatabase.getAllScoresByTest(test.id);
+      _testResults[test.nom_discipline] = await MongoDatabase.getAllScoresByTest(test.id);
     }
-    setState(() {}); // Actualisation de l'état
+    setState(() {}); 
     print(_testResults);
+    
   }
 
   void fetchData() async {
-    scoresParDate = await MongoDatabase().calculerScoresParDate(); // Scores organisés par date
-    tauxReussiteGeneral = await MongoDatabase().calculerTauxReussiteGeneral(); // Calcul taux de réussite général
-    print("Scores par date: $scoresParDate"); 
-    print("Taux de réussite général: $tauxReussiteGeneral"); 
+    scoresParDate = await MongoDatabase().calculerScoresParDate();
+    tauxReussiteGeneral = await MongoDatabase().calculerTauxReussiteGeneral();
+    print("Scores par date: $scoresParDate");
+    print("Taux de réussite général: $tauxReussiteGeneral");
+
     setState(() {});
   }
 
-  // Construction de la page graphique
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Taux de Réussite', style: TextStyle(color: Colors.white)),
-        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+        title: Text('Taux de Réussite', style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0))),
+        backgroundColor: const Color.fromARGB(255, 230, 226, 226),
       ),
-      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+      backgroundColor: const Color.fromARGB(255, 225, 225, 225),
       body: Padding(
         padding: const EdgeInsets.all(19.0),
         child: PageView(
           children: [
             ChartCard(
               title: 'Taux de Réussite par Discipline',
-              child: BarChartWidget(), // Affiche le diagramme en barres
+              child: BarChartWidget(testResults: _testResults),
             ),
             ChartCard(
               title: 'Taux de Réussite Général',
-              child: LineChartWidget(scoresParDate: scoresParDate), // Affiche le graphique en ligne
+              child: LineChartWidget(scoresParDate: scoresParDate),
             ),
           ],
         ),
@@ -72,6 +73,7 @@ class _GraphPageState extends State<GraphPage> {
     );
   }
 }
+
 
 class ChartCard extends StatelessWidget {
   final String title;
@@ -82,7 +84,6 @@ class ChartCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      // Conteneur animé avec effets d'ombre et bordure
       child: AnimatedContainer(
         duration: Duration(milliseconds: 200),
         curve: Curves.easeInOut,
@@ -108,53 +109,112 @@ class ChartCard extends StatelessWidget {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ),
-            Expanded(child: child), // Affichage du graphique
+            Expanded(child: child),
           ],
         ),
       ),
     );
   }
+
+  void _onHover(BuildContext context, bool isHovering) {
+   
+  }
 }
 
 class BarChartWidget extends StatelessWidget {
+  final Map<String, List<ResultatTest>> testResults;
+
+  BarChartWidget({required this.testResults});
+
   @override
   Widget build(BuildContext context) {
+    final disciplines = testResults.keys.toList();
+
+    final barGroups = disciplines.asMap().entries.map((entry) {
+      int index = entry.key;
+      String discipline = entry.value;
+
+      // Calcul du pourcentage de réussite pour chaque discipline
+      int totalNotes = testResults[discipline]!.length;
+      int notesSup10 = testResults[discipline]!
+          .where((resultat) => resultat.score > 10)
+          .length;
+      double pourcentageReussite = (notesSup10 / totalNotes) * 100;
+
+      return BarChartGroupData(
+        x: index,
+        barRods: [
+          BarChartRodData(
+            toY: pourcentageReussite, 
+            color: Colors.blue,
+            width: 22,
+            backDrawRodData: BackgroundBarChartRodData(
+              show: true,
+              toY: 100, 
+              color: Colors.blue.withOpacity(0.2),
+            ),
+          ),
+        ],
+      );
+    }).toList();
+
     return BarChart(
       BarChartData(
         alignment: BarChartAlignment.spaceEvenly,
-        barGroups: [
-          // Groupes de barres pour chaque matière avec différentes couleurs
-          BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 40, color: Colors.blue)]),
-          BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: 30, color: Colors.red)]),
-          BarChartGroupData(x: 2, barRods: [BarChartRodData(toY: 90, color: Colors.green)]),
-        ],
+        barGroups: barGroups,
         titlesData: FlTitlesData(
           leftTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: true, reservedSize: 60),
+            sideTitles: SideTitles(
+              showTitles: false,
+              reservedSize: 40,
+              interval: 20,
+              getTitlesWidget: (value, meta) {
+                return Text('${value.toInt()}%', style: TextStyle(color: Colors.white));
+              },
+            ),
           ),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 38,
               getTitlesWidget: (value, meta) {
-                switch (value.toInt()) {
-                  // Affichage des labels sous chaque barre
-                  case 0: return Text('Java', style: TextStyle(color: Colors.white));
-                  case 1: return Text('Algo', style: TextStyle(color: Colors.white));
-                  case 2: return Text('HTML/CSS', style: TextStyle(color: Colors.white));
-                  default: return Text('');
+                int index = value.toInt();
+                if (index >= 0 && index < disciplines.length) {
+                  return Text(
+                    disciplines[index],
+                    style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
+                  );
                 }
+                return Text('');
               },
             ),
+            
+          ),
+            topTitles: AxisTitles( 
+            sideTitles: SideTitles(showTitles: false),
           ),
         ),
+        
         borderData: FlBorderData(show: false),
-        gridData: FlGridData(show: false), // Masque les grilles pour simplifier l'affichage
+        gridData: FlGridData(show: false),
+        barTouchData: BarTouchData(
+          touchTooltipData: BarTouchTooltipData(
+            // tooltipBgColor: Colors.black,
+            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              return BarTooltipItem(
+                '${rod.toY.toStringAsFixed(1)}%', //  pourcentage avec une décimale
+                TextStyle(color: Colors.white),
+              );
+            },
+          ),
+        ),
       ),
     );
   }
 }
 
+
+  
 class LineChartWidget extends StatelessWidget {
   final Map<String, double> scoresParDate;  
   
@@ -162,24 +222,26 @@ class LineChartWidget extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
+    // Trier les scores par date en ordre croissant
     final sortedEntries = scoresParDate.entries.toList()
-      ..sort((a, b) => a.key.compareTo(b.key)); // Tri des scores par date
+      ..sort((a, b) => a.key.compareTo(b.key));
 
+    
     final spots = sortedEntries.asMap().entries.map((entry) {
-      // Convertit les entrées triées en points de graphique
       final index = entry.key.toDouble(); 
       final score = entry.value.value;   
       return FlSpot(index, score);
     }).toList();
 
-    final labels = sortedEntries.map((entry) => entry.key).toList(); // Labels de l'axe X
+    
+    final labels = sortedEntries.map((entry) => entry.key).toList();
 
     return LineChart(
       LineChartData(
         lineBarsData: [
           LineChartBarData(
             spots: spots,
-            isCurved: true, // Ligne courbée pour une meilleure lisibilité
+            isCurved: true,
             color: Colors.blue,
             dotData: FlDotData(show: true),
           ),
@@ -193,7 +255,7 @@ class LineChartWidget extends StatelessWidget {
                 if (index >= 0 && index < labels.length) {
                   return Text(
                     labels[index], 
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
                   );
                 }
                 return Text('');
@@ -201,15 +263,15 @@ class LineChartWidget extends StatelessWidget {
               interval: 1, 
             ),
           ),
-          leftTitles: AxisTitles( // Désactive les titres de l'axe Y
+          leftTitles: AxisTitles( 
             sideTitles: SideTitles(showTitles: false),
           ),
-          topTitles: AxisTitles( // Désactive les titres en haut
+          topTitles: AxisTitles( 
             sideTitles: SideTitles(showTitles: false),
           ),
         ),
         borderData: FlBorderData(show: false),
-        gridData: FlGridData(show: true), // Active la grille pour les lignes de référence
+        gridData: FlGridData(show: true),
       ),
     );
   }
