@@ -4,7 +4,13 @@ import 'package:flutter_cyclade/pages/inscription.dart';
 import 'package:flutter_cyclade/pages/connexion.dart';
 import 'package:flutter_cyclade/pages/profile.dart';
 import 'package:flutter_cyclade/pages/evaluations.dart';
-import 'package:flutter_cyclade/pages/graphiques.dart';
+import 'package:flutter_cyclade/pages/graph.dart';
+import 'package:flutter_cyclade/pages/resultats.dart';
+import 'package:flutter_cyclade/pages/admin.dart';
+import 'package:flutter_cyclade/pages/createTest.dart';
+import 'package:flutter_cyclade/pages/createQuestion.dart';
+import 'package:flutter_cyclade/pages/editQuestion.dart';
+import 'package:flutter_cyclade/pages/editTest.dart';
 
 
 
@@ -26,7 +32,9 @@ class MyApp extends StatelessWidget {
         '/connexion': (context) => const ConnexionPage(),
         '/profile': (context) => const ProfilePage(),
         '/evaluations': (context) => const EvaluationsPage(),
-        '/graphiques': (context) => const GraphiquesPage(),
+        '/graphiques': (context) => GraphPage(),
+        '/resultats': (context) => const ResultatsPage(),
+        '/admin': (context) => const AdminPage(),
       },
     );
   }

@@ -1,15 +1,17 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_cyclade/constant.dart';
 import 'package:flutter_cyclade/services/databaseService.dart';
 import 'package:flutter_cyclade/models/userModel.dart';
+import '../models/userModel.dart';
 
-class ProfilePage extends StatefulWidget {
+class ProfilePage
+    extends StatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  State<ProfilePage> createState() => _MyHomePageState();
+  State<ProfilePage> createState() =>
+      _MyHomePageState();
 }
 
 class _MyHomePageState extends State<ProfilePage> {
@@ -113,8 +115,15 @@ class _MyHomePageState extends State<ProfilePage> {
                 formErrorText,
                 style: TextStyle(color: Colors.red),
               ),
+            if (userData.id != "0")
+            ElevatedButton(
+              onPressed: _disconnectUser,
+              child: const Text(
+                  "Se déconnecter"),
+            ),
           ],
         ),
+        ],
       ),
     );
   }
