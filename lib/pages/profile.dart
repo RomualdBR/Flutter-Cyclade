@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_cyclade/constant.dart';
 import 'package:flutter_cyclade/services/databaseService.dart';
@@ -13,14 +11,12 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<ProfilePage> {
-
   final _formkey = GlobalKey<FormState>();
   String prenom = userData.prenom.toString();
   String nom = userData.nom.toString();
   String email = userData.email.toString();
   String adresse = userData.adresse.toString();
   String formErrorText = "";
-
 
   void _disconnectUser() async {
     if (userData.id != "0") {
@@ -35,6 +31,7 @@ class _MyHomePageState extends State<ProfilePage> {
           role: false,
           id_motivation: "0",
           mot_de_passe: "mot_de_passe");
+          Navigator.pushReplacementNamed(context, '/');
     }
   }
 
@@ -82,9 +79,7 @@ class _MyHomePageState extends State<ProfilePage> {
             Text("age : " + userData.age.toString()),
             Text("adresse : " + userData.adresse.toString()),
             Text("motivation : " + userData.id_motivation.toString()),
-            if (userData.role == true)
-              Text("Rôle : " + userData.role.toString()),
-
+            if (userData.role == true) Text("Rôle : " + userData.role.toString()),
             TextFormField(
               decoration: const InputDecoration(labelText: "Nouvelle adresse"),
               initialValue: adresse,
@@ -121,7 +116,6 @@ class _MyHomePageState extends State<ProfilePage> {
                 });
               },
             ),
-
             ElevatedButton(
               onPressed: _updateUser,
               child: const Text("Mettre à jour"),

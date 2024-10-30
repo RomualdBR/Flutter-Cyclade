@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cyclade/services/databaseService.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_cyclade/models/questionModel.dart';
-import 'package:flutter_cyclade/models/testModel.dart';
 import 'package:flutter_cyclade/services/questionService.dart';
-import 'package:mongo_dart/mongo_dart.dart' show ObjectId;
 
 class EditQuestionPage extends StatefulWidget {
   final Question question;
@@ -20,7 +18,8 @@ class _EditQuestionPageState extends State<EditQuestionPage> {
   late TextEditingController _prop2Controller;
   late TextEditingController _prop3Controller;
   late TextEditingController _prop4Controller;
-  late TextEditingController _correctAnswerController;
+  late TextEditingController _secondsController;
+  late int _reponseController = 1;
 
   @override
   void initState() {
@@ -30,7 +29,8 @@ class _EditQuestionPageState extends State<EditQuestionPage> {
     _prop2Controller = TextEditingController(text: widget.question.proposition_2);
     _prop3Controller = TextEditingController(text: widget.question.proposition_3);
     _prop4Controller = TextEditingController(text: widget.question.proposition_4);
-    _correctAnswerController = TextEditingController(text: widget.question.reponse.toString());
+    _secondsController = TextEditingController(text: widget.question.seconds.toString());
+    _reponseController = widget.question.reponse;
   }
 
   Future<void> _updateQuestion() async {
@@ -42,12 +42,14 @@ class _EditQuestionPageState extends State<EditQuestionPage> {
       proposition_2: _prop2Controller.text.trim(),
       proposition_3: _prop3Controller.text.trim(),
       proposition_4: _prop4Controller.text.trim(),
-      reponse: int.parse(_correctAnswerController.text.trim()),
+      reponse: _reponseController,
+      seconds: int.parse(_secondsController.text.trim()),
     );
 
     final result = await QuestionService.updateQuestion(updatedQuestion);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result)));
-    Navigator.pop(context, updatedQuestion); // Retourne la question mise à jour à la page précédente
+    Navigator.pop(
+        context, updatedQuestion); // Retourne la question mise à jour à la page précédente
   }
 
   @override
@@ -78,9 +80,55 @@ class _EditQuestionPageState extends State<EditQuestionPage> {
               controller: _prop4Controller,
               decoration: const InputDecoration(labelText: "Proposition 4"),
             ),
+            const Text("Sélectionnez la bonne réponse"),
+            Row(
+              children: [
+                Radio<int>(
+                  value: 1,
+                  groupValue: _reponseController,
+                  onChanged: (int? value) {
+                    setState(() {
+                      _reponseController = value!;
+                    });
+                  },
+                ),
+                const Text("1"),
+                Radio<int>(
+                  value: 2,
+                  groupValue: _reponseController,
+                  onChanged: (int? value) {
+                    setState(() {
+                      _reponseController = value!;
+                    });
+                  },
+                ),
+                const Text("2"),
+                Radio<int>(
+                  value: 3,
+                  groupValue: _reponseController,
+                  onChanged: (int? value) {
+                    setState(() {
+                      _reponseController = value!;
+                    });
+                  },
+                ),
+                const Text("3"),
+                Radio<int>(
+                  value: 4,
+                  groupValue: _reponseController,
+                  onChanged: (int? value) {
+                    setState(() {
+                      _reponseController = value!;
+                    });
+                  },
+                ),
+                const Text("4"),
+              ],
+            ),
             TextField(
-              controller: _correctAnswerController,
-              decoration: const InputDecoration(labelText: "Réponse correcte (1-4)"),
+              controller: _secondsController,
+              decoration: const InputDecoration(labelText: "Durée en secondes"),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 20),

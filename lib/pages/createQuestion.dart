@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_cyclade/services/databaseService.dart';
 import 'package:flutter_cyclade/models/questionModel.dart';
 import 'package:flutter_cyclade/services/questionService.dart';
 import 'package:mongo_dart/mongo_dart.dart' show ObjectId;
-import 'package:flutter_cyclade/services/testService.dart';
 
 class CreateQuestionPage extends StatefulWidget {
   final String testId;
@@ -21,6 +19,7 @@ class _CreateQuestionPageState extends State<CreateQuestionPage> {
   final TextEditingController _prop3Controller = TextEditingController();
   final TextEditingController _prop4Controller = TextEditingController();
   final TextEditingController _correctAnswerController = TextEditingController();
+  final TextEditingController _secondsController = TextEditingController();
 
   Future<void> _createQuestion() async {
     String questionText = _questionTextController.text.trim();
@@ -29,6 +28,7 @@ class _CreateQuestionPageState extends State<CreateQuestionPage> {
     String prop3 = _prop3Controller.text.trim();
     String prop4 = _prop4Controller.text.trim();
     int correctAnswer = int.parse(_correctAnswerController.text.trim());
+    int seconds = int.parse(_secondsController.text.trim());
 
     if ([questionText, prop1, prop2, prop3, prop4].any((text) => text.isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -46,6 +46,7 @@ class _CreateQuestionPageState extends State<CreateQuestionPage> {
       proposition_3: prop3,
       proposition_4: prop4,
       reponse: correctAnswer,
+      seconds: seconds,
     );
 
     String result = await QuestionService.createQuestion(newQuestion);
@@ -84,6 +85,11 @@ class _CreateQuestionPageState extends State<CreateQuestionPage> {
             TextField(
               controller: _correctAnswerController,
               decoration: const InputDecoration(labelText: "Réponse correcte (1-4)"),
+              keyboardType: TextInputType.number,
+            ),
+            TextField(
+              controller: _secondsController,
+              decoration: const InputDecoration(labelText: "Durée de la question"),
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 20),

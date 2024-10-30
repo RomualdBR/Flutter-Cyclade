@@ -1,13 +1,6 @@
 import 'dart:developer';
-import 'package:flutter_cyclade/models/resultatTestModel.dart';
-import 'package:flutter_cyclade/models/userModel.dart';
-import 'package:flutter_cyclade/models/motivationModel.dart';
 import 'package:flutter_cyclade/models/questionModel.dart';
-import 'package:flutter_cyclade/models/testModel.dart';
 import 'package:mongo_dart/mongo_dart.dart';
-import '../constant.dart';
-import 'package:crypto/crypto.dart';
-import 'dart:convert';
 import "databaseService.dart";
 
 class QuestionService {
@@ -47,7 +40,8 @@ class QuestionService {
             .set('proposition_2', questionOne.proposition_2)
             .set('proposition_3', questionOne.proposition_3)
             .set('proposition_4', questionOne.proposition_4)
-            .set('reponse', questionOne.reponse),
+            .set('reponse', questionOne.reponse)
+            .set('seconds', questionOne.seconds),
       );
       return result.isSuccess ? "Question mise à jour avec succès" : "Erreur de mise à jour de la question";
     } catch (e) {
