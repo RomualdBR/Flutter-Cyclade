@@ -18,37 +18,37 @@ class InscriptionPage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<InscriptionPage> {
-  final _formKey = GlobalKey<FormState>();
-  late String _nom;
+  final _formKey = GlobalKey<FormState>(); // Clé globale pour valider le formulaire
+  late String _nom; // Variables pour les données utilisateur
   late String _prenom;
   late String _email;
   late String _age;
   late String _adresse;
-  final bool _role = false;
-  String _id_motivation = "0";
+  final bool _role = false; // Par défaut, l'utilisateur n'a pas un rôle "admin"
+  String _id_motivation = "0"; // ID de la motivation sélectionnée
   late String _mot_de_passe;
   late String _mot_de_passe_confirmation;
-  String formErrorText = "";
-  List<Motivation> motivations = [];
+  String formErrorText = ""; // Message d'erreur à afficher sous le formulaire
+  List<Motivation> motivations = []; // Liste des motivations disponibles
 
   @override
   void initState() {
     super.initState();
-    MongoDatabase.connect();
-    _loadMotivations();
+    MongoDatabase.connect(); // Connexion à la base de données
+    _loadMotivations(); // Chargement des motivations depuis le service
   }
 
   Future<void> _loadMotivations() async {
-    final loadedMotivations = await MotivationService.getAllMotivations();
+    final loadedMotivations = await MotivationService.getAllMotivations(); // Récupérer toutes les motivations
     setState(() {
-      motivations = loadedMotivations;
+      motivations = loadedMotivations; // Mettre à jour la liste des motivations
     });
   }
 
   void _saveUser() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      var _id = ObjectId().toHexString();
+    if (_formKey.currentState!.validate()) { // Vérifier la validité du formulaire
+      _formKey.currentState!.save(); // Sauvegarder les valeurs saisies
+      var _id = ObjectId().toHexString(); // Génération d'un ID unique pour l'utilisateur
       final newUser = User(
         id: _id.toString(),
         nom: _nom,
@@ -58,43 +58,49 @@ class _MyHomePageState extends State<InscriptionPage> {
         adresse: _adresse,
         role: _role,
         id_motivation: _id_motivation,
-        mot_de_passe: encryptPassword(_mot_de_passe).toString(),
+        mot_de_passe: encryptPassword(_mot_de_passe).toString(), // Enregistrer le mot de passe encrypté
       );
+
+      // Vérifier la correspondance des mots de passe
       if (_mot_de_passe_confirmation == _mot_de_passe) {
+        // Vérifier si l'email n'existe pas déjà dans la base
         if (await MongoDatabase.emailExists(_email) == false) {
-          var result = await MongoDatabase.insert(newUser);
-          userData = newUser;
-          Navigator.pushNamed(context, '/');
+          var result = await MongoDatabase.insert(newUser); // Insérer le nouvel utilisateur
+          userData = newUser; // Mettre à jour les données utilisateur dans l'application
+          Navigator.pushNamed(context, '/'); // Rediriger vers l'accueil
         } else {
+          // Afficher un message si l'email est déjà utilisé
           print("L'email existe déja");
           setState(() {
             formErrorText = "L'email existe déja";
           });
         }
       } else {
+        // Afficher un message si les mots de passe ne correspondent pas
         setState(() {
           formErrorText = "Les mots de passe ne correspondent pas";
         });
-
         print("Les mots de passe ne correspondent pas");
       }
-      ;
     }
   }
 
   String encryptPassword(String password) {
+    // Chiffrer le mot de passe avec SHA-256 pour le stockage
     final bytes = utf8.encode(password);
     final hash = sha256.convert(bytes);
     return hash.toString();
   }
 
   Future<void> _createMotivations() async {
+    // Créer des motivations par défaut si elles n'existent pas
     await MotivationService.createDefaultMotivations();
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Motivations par défaut créées.')),
     );
   }
 
+  // Construction de la page d'inscription
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -136,7 +142,7 @@ class _MyHomePageState extends State<InscriptionPage> {
               ),
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Age'),
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly], // Forcer l'input numérique
                 keyboardType: TextInputType.number,
                 onSaved: (value) => _age = value.toString(),
                 validator: (value) {
@@ -160,6 +166,7 @@ class _MyHomePageState extends State<InscriptionPage> {
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: 'Motivation'),
                 items: motivations.map((motivation) {
+                  // Liste déroulante des motivations disponibles
                   return DropdownMenuItem<String>(
                     value: motivation.id,
                     child: Text(motivation.nom),
@@ -198,11 +205,11 @@ class _MyHomePageState extends State<InscriptionPage> {
               ),
               const SizedBox(height: 20),
               Text(
-                formErrorText,
+                formErrorText, // Affichage du message d'erreur
                 style: const TextStyle(color: Colors.red, fontSize: 16),
               ),
               ElevatedButton(
-                onPressed: _saveUser,
+                onPressed: _saveUser, // Enregistre le nouvel utilisateur
                 child: const Text("S'inscrire"),
               ),
             ],

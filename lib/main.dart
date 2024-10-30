@@ -7,19 +7,13 @@ import 'package:flutter_cyclade/pages/evaluations.dart';
 import 'package:flutter_cyclade/pages/graph.dart';
 import 'package:flutter_cyclade/pages/resultats.dart';
 import 'package:flutter_cyclade/pages/admin.dart';
-import 'package:flutter_cyclade/pages/createTest.dart';
-import 'package:flutter_cyclade/pages/createQuestion.dart';
-import 'package:flutter_cyclade/pages/editQuestion.dart';
-import 'package:flutter_cyclade/pages/editTest.dart';
 
-
-
-
-
+// Lancement de l'application
 void main() {
   runApp(MyApp());
 }
 
+// Le routeur
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
