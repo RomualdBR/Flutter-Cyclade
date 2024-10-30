@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_cyclade/models/resultatTestModel.dart';
 import 'package:flutter_cyclade/models/userModel.dart';
 import 'package:flutter_cyclade/models/motivationModel.dart';
@@ -53,6 +54,32 @@ class MongoDatabase {
     }
   }
 
+  static Future<String> update(User userData) async {
+    print("Ma fonction update");
+    try {
+      var result = await user.updateOne(
+        where.eq('_id', ObjectId.fromHexString(userData.id)),  // Utilisation de _id
+        modify
+            .set('prenom', userData.prenom)
+            .set('nom', userData.nom)
+            .set('email', userData.email)
+            .set('adresse', userData.adresse)
+      );
+      if (result.isAcknowledged) {
+        print("succes");
+        return "success";
+      } else {
+        print('update not ack');
+        return "Update not acknowledged";
+      }
+    } catch (e) {
+      print('error');
+      return "Update error: ${e.toString()}";
+    }
+  }
+
+
+  static Future<bool> emailExists(String email) async {
   // Ensures connection before using the user collection
   static Future<bool>
       ensureConnection() async {
@@ -65,7 +92,6 @@ class MongoDatabase {
       String email) async {
     if (!await ensureConnection())
       return false;
-
     try {
       var existingUser = await user
           .findOne({'email': email});
