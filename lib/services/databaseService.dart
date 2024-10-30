@@ -61,6 +61,30 @@ class MongoDatabase {
     return _isInitialized;
   }
 
+  static Future<String> update(User userData) async {
+    print("Ma fonction update");
+    try {
+      var result = await user.updateOne(
+        where.eq('_id', ObjectId.fromHexString(userData.id)),  // Utilisation de _id
+        modify
+            .set('prenom', userData.prenom)
+            .set('nom', userData.nom)
+            .set('email', userData.email)
+            .set('adresse', userData.adresse)
+      );
+      if (result.isAcknowledged) {
+        print("succes");
+        return "success";
+      } else {
+        print('update not ack');
+        return "Update not acknowledged";
+      }
+    } catch (e) {
+      print('error');
+      return "Update error: ${e.toString()}";
+    }
+  }
+
   static Future<bool> emailExists(
       String email) async {
     if (!await ensureConnection())
