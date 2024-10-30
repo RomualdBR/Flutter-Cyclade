@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cyclade/models/resultatTestModel.dart';
-import 'package:flutter_cyclade/services/databaseService.dart';
 import 'package:flutter_cyclade/models/questionModel.dart';
 import 'package:flutter_cyclade/models/testModel.dart';
 import 'package:mongo_dart/mongo_dart.dart' show ObjectId;
@@ -201,6 +200,7 @@ class _AdminPageState extends State<AdminPage> {
                                   Text("3: ${question.proposition_3}"),
                                   Text("4: ${question.proposition_4}"),
                                   Text("Réponse: ${question.reponse}"),
+                                  Text("Durée: ${question.seconds}s"),
                                 ],
                               ),
                               trailing: Row(

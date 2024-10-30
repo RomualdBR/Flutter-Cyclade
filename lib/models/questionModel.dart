@@ -9,8 +9,9 @@ class Question {
   final String proposition_3;
   final String proposition_4;
   final int reponse;
+  final int seconds;
 
-  Question({required this.id, required this.id_test, required this.intitule, required this.proposition_1, required this.proposition_2, required this.proposition_3, required this.proposition_4, required this.reponse});
+  Question({required this.id, required this.id_test, required this.intitule, required this.proposition_1, required this.proposition_2, required this.proposition_3, required this.proposition_4, required this.reponse, required this.seconds});
 
   Map<String, dynamic> toJson() => {
         '_id': ObjectId.fromHexString(id),
@@ -21,6 +22,7 @@ class Question {
         'proposition_3': proposition_3,
         'proposition_4': proposition_4,
         'reponse': reponse,
+        'seconds': seconds,
       };
 
   factory Question.fromJson(Map<String, dynamic> json) => Question(
@@ -32,5 +34,6 @@ class Question {
         proposition_3: json['proposition_3'] ?? '',
         proposition_4: json['proposition_4'] ?? '',
         reponse: json['reponse'] ?? 1,
+        seconds: json['seconds'] ?? 60,
       );
 }
