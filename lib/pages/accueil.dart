@@ -67,20 +67,16 @@ class _MyHomePageState extends State<AccueilPage> {
               onPressed: connexion,
               child: const Text("Connexion"), // Bouton pour se connecter
             ),
-
-          // Boutons accessibles à tous les utilisateurs
-          ElevatedButton(
-            onPressed: profile,
-            child: const Text("Profile"), // Accède au profil de l'utilisateur
-          ),
-          ElevatedButton(
-            onPressed: evaluations,
-            child: const Text("Evaluations"), // Accède aux évaluations
-          ),
-          ElevatedButton(
-            onPressed: resultats,
-            child: const Text("Résultats"), // Accède aux résultats
-          ),
+          if (userData.id.toString() != "0")
+            ElevatedButton(
+              onPressed: profile,
+              child: const Text("Profile"),
+            ),
+          if (userData.id.toString() != "0")
+            ElevatedButton(
+              onPressed: evaluations,
+              child: const Text("Evaluations"),
+            ),
           
           // Bouton "Panel Admin" visible uniquement si l'utilisateur est admin (role=true)
           if (userData.role == true)

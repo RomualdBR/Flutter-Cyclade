@@ -34,6 +34,9 @@ dependencies:
   email_validator: '^2.1.17'
   crypto: ^3.0.1
   fl_chart: ^0.69.0
+  intl: ^0.17.0
+
+  
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -47,6 +50,8 @@ dev_dependencies:
   email_validator: '^2.1.17'
   crypto: ^3.0.1
   fl_chart: ^0.69.0
+  intl: ^0.17.0
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

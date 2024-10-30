@@ -122,6 +122,10 @@ class _AdminPageState extends State<AdminPage> {
       });
     }
   }
+  
+  void resultats() {
+    Navigator.pushNamed(context, '/resultats');
+  }
 
   // Navigation vers la page de graphiques
   void graphiques() {
@@ -154,6 +158,10 @@ class _AdminPageState extends State<AdminPage> {
       body: ListView(
         padding: const EdgeInsets.all(8.0),
         children: [
+          ElevatedButton(
+            onPressed: resultats,
+            child: const Text("Résultats"),
+          ),
           ElevatedButton(
             onPressed: graphiques,
             child: const Text("Graphique : taux de réussite global"),
