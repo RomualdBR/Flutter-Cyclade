@@ -48,6 +48,7 @@ class _ResultatsPageState extends State<ResultatsPage> {
     });
   }
 
+  // Contenu de la page
   @override
   Widget build(BuildContext context) {
     // Extraire les années uniques des tests pour le sélecteur

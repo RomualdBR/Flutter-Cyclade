@@ -1,5 +1,6 @@
 import '../models/userModel.dart';
 
+// Constantes 
 const MONGO_CONN_URL = 
   "mongodb+srv://flutterdb123:flutterdb123@cluster0.edmbw.mongodb.net/projet?retryWrites=true&w=majority&appName=Cluster0";
 const USER_COLLECTION = "user";
