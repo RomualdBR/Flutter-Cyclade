@@ -15,6 +15,8 @@ import 'package:flutter_cyclade/pages/editTest.dart';
 import './userProvider.dart';
 import './motivationProvider.dart';
 
+
+// Lancement de l'application
 void main() {
   runApp(
     MultiProvider(
@@ -27,6 +29,7 @@ void main() {
   );
 }
 
+// Le routeur
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

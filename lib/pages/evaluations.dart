@@ -12,6 +12,7 @@ class _MyHomePageState extends State<EvaluationsPage> {
   void algo() {}
   void htmlcss() {}
 
+  // Contenu de la page
   @override
   Widget build(BuildContext context) {
     return Scaffold(

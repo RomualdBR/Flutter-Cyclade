@@ -1,25 +1,18 @@
-import 'dart:developer';
 import 'package:flutter_cyclade/models/resultatTestModel.dart';
-import 'package:flutter_cyclade/models/userModel.dart';
-import 'package:flutter_cyclade/models/motivationModel.dart';
-import 'package:flutter_cyclade/models/questionModel.dart';
-import 'package:flutter_cyclade/models/testModel.dart';
-import 'package:mongo_dart/mongo_dart.dart';
-import '../constant.dart';
-import 'package:crypto/crypto.dart';
-import 'dart:convert';
 import "databaseService.dart";
 
 class ResultService {
+  // Crée un nouveau résultat de test dans la base de données
   static Future<String> createResult(ResultatTest resultatTestOne) async {
-    if (MongoDatabase.db == null) await MongoDatabase.connect();
+    if (MongoDatabase.db == null) await MongoDatabase.connect(); // Vérifie la connexion
+
     try {
       final result = await MongoDatabase.resultatTest.insertOne(resultatTestOne.toJson());
       return result.isSuccess
-          ? "Résultat-test créé avec succès"
-          : "Erreur de création du résultat-test";
+          ? "Résultat-test créé avec succès" // Message si l'insertion réussit
+          : "Erreur de création du résultat-test"; // Message en cas d'erreur
     } catch (e) {
-      print('Error creating resultat-test: $e');
+      print('Error creating resultat-test: $e'); // Log de l'erreur
       return "Erreur de création du resultat-test";
     }
   }

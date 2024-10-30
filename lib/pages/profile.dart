@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_cyclade/constant.dart';
 import 'package:flutter_cyclade/services/databaseService.dart';
@@ -35,6 +33,53 @@ class _MyHomePageState extends State<ProfilePage> {
     motivationProvider.loadMotivations(); // Charge les motivations
   }
 
+  void _disconnectUser() async {
+    if (userData.id != "0") {
+      // Déconnexion de l'utilisateur en réinitialisant les données utilisateur
+      userData = User(
+          id: "0",
+          nom: "nom",
+          prenom: "prenom",
+          email: "email",
+          age: 0,
+          adresse: "adresse",
+          role: false,
+          id_motivation: "0",
+          mot_de_passe: "mot_de_passe");
+      Navigator.pushReplacementNamed(context, '/'); // Redirection vers l'accueil après déconnexion
+    }
+  }
+
+  Future<void> _updateUser() async {
+    if (_formkey.currentState!.validate()) { // Vérifie la validité du formulaire
+      _formkey.currentState!.save(); // Sauvegarde les données mises à jour dans le formulaire
+      final updateUser = User(
+        id: userData.id.toString(),
+        prenom: prenom,
+        nom: nom,
+        email: email,
+        age: userData.age,
+        adresse: adresse,
+        role: userData.role,
+        id_motivation: userData.id_motivation,
+        mot_de_passe: userData.mot_de_passe,
+      );
+      try {
+        var result = await MongoDatabase.update(updateUser); // Envoie les données mises à jour à la base de données
+        if (result != null) {
+          userData = updateUser; // Met à jour les informations utilisateur dans l'application
+        }
+      } catch (e) {
+        // Gestion de l'erreur d'échec de mise à jour
+        print("Failed to update user: $e");
+        setState(() {
+          formErrorText = "Failed to update";
+        });
+      }
+    }
+  }
+
+  // Construction de la page de profil
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
@@ -54,6 +99,8 @@ class _MyHomePageState extends State<ProfilePage> {
             Text("motivation : ${userProvider.user.id_motivation} "),
             if (userData.role == true)
               Text("Rôle : ${userProvider.user.role}"),
+            
+            // Champs pour modifier les informations utilisateur
             TextFormField(
               decoration: const InputDecoration(labelText: "Nouvelle adresse"),
               initialValue: userProvider.user.adresse,
@@ -109,6 +156,9 @@ class _MyHomePageState extends State<ProfilePage> {
                   ? 'Veuillez sélectionner une motivation'
                   : null,
             ),
+
+            
+            // Bouton pour mettre à jour les informations utilisateur
             ElevatedButton(
               onPressed: () async {
                 if (_formkey.currentState!.validate()) {
@@ -134,6 +184,8 @@ class _MyHomePageState extends State<ProfilePage> {
                 userProvider.formErrorText,
                 style: TextStyle(color: Colors.red),
               ),
+            
+            // Bouton pour se déconnecter si l'utilisateur est connecté
             if (userData.id != "0")
               ElevatedButton(
                 onPressed: userProvider.disconnectUser,

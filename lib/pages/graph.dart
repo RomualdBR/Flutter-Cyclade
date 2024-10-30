@@ -1,7 +1,51 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
+import 'package:fl_chart/fl_chart.dart'; // Bibliothèque pour les graphiques
+import 'package:flutter_cyclade/models/questionModel.dart';
+import 'package:flutter_cyclade/models/resultatTestModel.dart';
+import 'package:flutter_cyclade/models/testModel.dart';
+import 'package:flutter_cyclade/services/databaseService.dart';
+import 'package:flutter_cyclade/services/questionService.dart';
+import 'package:flutter_cyclade/services/testService.dart';
+import 'package:flutter_cyclade/services/resultService.dart';
 
-class GraphPage extends StatelessWidget {
+class GraphPage extends StatefulWidget {
+  @override
+  _GraphPageState createState() => _GraphPageState();
+}
+
+class _GraphPageState extends State<GraphPage> {
+  Map<String, double> scoresParDate = {}; // Stockage des scores par date
+  double tauxReussiteGeneral = 0.0; // Taux de réussite global
+
+  List<Test> _tests = []; // Liste des tests chargés
+  Map<String, List<ResultatTest>> _testResults = {}; // Résultats par test
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData(); // Récupération des données de scores et taux de réussite
+    _loadResultsByTests(); // Chargement des résultats par test
+  }
+
+  Future<void> _loadResultsByTests() async {
+    _tests = await TestService.getAllTests(); // Récupérer tous les tests
+    for (var test in _tests) {
+      // Récupération des scores pour chaque test
+      _testResults[test.id] = await MongoDatabase.getAllScoresByTest(test.id);
+    }
+    setState(() {}); // Actualisation de l'état
+    print(_testResults);
+  }
+
+  void fetchData() async {
+    scoresParDate = await MongoDatabase().calculerScoresParDate(); // Scores organisés par date
+    tauxReussiteGeneral = await MongoDatabase().calculerTauxReussiteGeneral(); // Calcul taux de réussite général
+    print("Scores par date: $scoresParDate"); 
+    print("Taux de réussite général: $tauxReussiteGeneral"); 
+    setState(() {});
+  }
+
+  // Construction de la page graphique
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,11 +60,11 @@ class GraphPage extends StatelessWidget {
           children: [
             ChartCard(
               title: 'Taux de Réussite par Discipline',
-              child: BarChartWidget(),
+              child: BarChartWidget(), // Affiche le diagramme en barres
             ),
             ChartCard(
               title: 'Taux de Réussite Général',
-              child: LineChartWidget(),
+              child: LineChartWidget(scoresParDate: scoresParDate), // Affiche le graphique en ligne
             ),
           ],
         ),
@@ -38,8 +82,7 @@ class ChartCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      onEnter: (_) => _onHover(context, true),
-      onExit: (_) => _onHover(context, false),
+      // Conteneur animé avec effets d'ombre et bordure
       child: AnimatedContainer(
         duration: Duration(milliseconds: 200),
         curve: Curves.easeInOut,
@@ -65,15 +108,11 @@ class ChartCard extends StatelessWidget {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ),
-            Expanded(child: child),
+            Expanded(child: child), // Affichage du graphique
           ],
         ),
       ),
     );
-  }
-
-  void _onHover(BuildContext context, bool isHovering) {
-   
   }
 }
 
@@ -84,6 +123,7 @@ class BarChartWidget extends StatelessWidget {
       BarChartData(
         alignment: BarChartAlignment.spaceEvenly,
         barGroups: [
+          // Groupes de barres pour chaque matière avec différentes couleurs
           BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 40, color: Colors.blue)]),
           BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: 30, color: Colors.red)]),
           BarChartGroupData(x: 2, barRods: [BarChartRodData(toY: 90, color: Colors.green)]),
@@ -98,6 +138,7 @@ class BarChartWidget extends StatelessWidget {
               reservedSize: 38,
               getTitlesWidget: (value, meta) {
                 switch (value.toInt()) {
+                  // Affichage des labels sous chaque barre
                   case 0: return Text('Java', style: TextStyle(color: Colors.white));
                   case 1: return Text('Algo', style: TextStyle(color: Colors.white));
                   case 2: return Text('HTML/CSS', style: TextStyle(color: Colors.white));
@@ -108,59 +149,67 @@ class BarChartWidget extends StatelessWidget {
           ),
         ),
         borderData: FlBorderData(show: false),
-        gridData: FlGridData(show: false),
+        gridData: FlGridData(show: false), // Masque les grilles pour simplifier l'affichage
       ),
     );
   }
 }
 
 class LineChartWidget extends StatelessWidget {
+  final Map<String, double> scoresParDate;  
+  
+  LineChartWidget({required this.scoresParDate});
+  
   @override
   Widget build(BuildContext context) {
+    final sortedEntries = scoresParDate.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key)); // Tri des scores par date
+
+    final spots = sortedEntries.asMap().entries.map((entry) {
+      // Convertit les entrées triées en points de graphique
+      final index = entry.key.toDouble(); 
+      final score = entry.value.value;   
+      return FlSpot(index, score);
+    }).toList();
+
+    final labels = sortedEntries.map((entry) => entry.key).toList(); // Labels de l'axe X
+
     return LineChart(
       LineChartData(
-        gridData: FlGridData(show: false), 
-        titlesData: FlTitlesData(
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 40,
-              getTitlesWidget: (value, meta) {
-                return Text('${value.toInt()}%', style: TextStyle(color: Colors.white)); 
-              },
-            ),
+        lineBarsData: [
+          LineChartBarData(
+            spots: spots,
+            isCurved: true, // Ligne courbée pour une meilleure lisibilité
+            color: Colors.blue,
+            dotData: FlDotData(show: true),
           ),
+        ],
+        titlesData: FlTitlesData(
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 38,
               getTitlesWidget: (value, meta) {
-                switch (value.toInt()) {
-                  case 0: return Text('2010', style: TextStyle(color: Colors.white));
-                  case 2: return Text('2013', style: TextStyle(color: Colors.white));
-                  case 3: return Text('2014', style: TextStyle(color: Colors.white));
-                  default: return Text(''); // Only show years for specific x values
+                final index = value.toInt();
+                if (index >= 0 && index < labels.length) {
+                  return Text(
+                    labels[index], 
+                    style: TextStyle(color: Colors.white),
+                  );
                 }
+                return Text('');
               },
+              interval: 1, 
             ),
           ),
-        ),
-        lineBarsData: [
-          LineChartBarData(
-            spots: [
-              FlSpot(0, 30),
-              FlSpot(1, 50),
-              FlSpot(2, 70),
-              FlSpot(3, 60),
-              FlSpot(4, 90),
-            ],
-            isCurved: true,
-            color: Colors.blue,
-            dotData: FlDotData(show: true), 
-            belowBarData: BarAreaData(show: false), 
+          leftTitles: AxisTitles( // Désactive les titres de l'axe Y
+            sideTitles: SideTitles(showTitles: false),
           ),
-        ],
-        borderData: FlBorderData(show: true, border: Border.all(color: Colors.white)),
+          topTitles: AxisTitles( // Désactive les titres en haut
+            sideTitles: SideTitles(showTitles: false),
+          ),
+        ),
+        borderData: FlBorderData(show: false),
+        gridData: FlGridData(show: true), // Active la grille pour les lignes de référence
       ),
     );
   }
