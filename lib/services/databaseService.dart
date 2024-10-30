@@ -179,7 +179,7 @@ class MongoDatabase {
     scoresParDate.forEach((mois, scores) {
       moyenneScoresParDate[mois] = scores.reduce((a, b) => a + b) / scores.length;
     });
-
+   
     return moyenneScoresParDate;
   }
 }

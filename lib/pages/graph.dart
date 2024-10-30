@@ -18,7 +18,6 @@ class GraphPage extends StatefulWidget {
 class _GraphPageState extends State<GraphPage> {
   Map<String, double> scoresParDate = {};
   double tauxReussiteGeneral = 0.0;
-
   List<Test> _tests = [];
   Map<String, List<ResultatTest>> _testResults = {};
 
@@ -32,21 +31,20 @@ class _GraphPageState extends State<GraphPage> {
   Future<void> _loadResultsByTests() async {
     _tests = await TestService.getAllTests();
     for (var test in _tests) {
-      _testResults[test.id] = await MongoDatabase.getAllScoresByTest(test.id);
+      _testResults[test.nom_discipline] = await MongoDatabase.getAllScoresByTest(test.id);
     }
-    setState(() {});
+    setState(() {}); 
     print(_testResults);
   }
 
   void fetchData() async {
-  scoresParDate = await MongoDatabase().calculerScoresParDate();
-  tauxReussiteGeneral = await MongoDatabase().calculerTauxReussiteGeneral();
-  print("Scores par date: $scoresParDate"); 
-  print("Taux de réussite général: $tauxReussiteGeneral"); 
+    scoresParDate = await MongoDatabase().calculerScoresParDate();
+    tauxReussiteGeneral = await MongoDatabase().calculerTauxReussiteGeneral();
+    print("Scores par date: $scoresParDate");
+    print("Taux de réussite général: $tauxReussiteGeneral");
 
-  setState(() {});
-}
-
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +60,7 @@ class _GraphPageState extends State<GraphPage> {
           children: [
             ChartCard(
               title: 'Taux de Réussite par Discipline',
-              child: BarChartWidget(),
+              child: BarChartWidget(testResults: _testResults),
             ),
             ChartCard(
               title: 'Taux de Réussite Général',
@@ -74,6 +72,7 @@ class _GraphPageState extends State<GraphPage> {
     );
   }
 }
+
 
 class ChartCard extends StatelessWidget {
   final String title;
@@ -123,16 +122,33 @@ class ChartCard extends StatelessWidget {
 }
 
 class BarChartWidget extends StatelessWidget {
+  final Map<String, List<ResultatTest>> testResults;
+
+  BarChartWidget({required this.testResults});
+
   @override
   Widget build(BuildContext context) {
+    final disciplines = testResults.keys.toList();
+    final barGroups = disciplines.asMap().entries.map((entry) {
+      int index = entry.key;
+      String discipline = entry.value;
+
+      // Calcul de la moyenne des scores pour chaque discipline
+      double averageScore = testResults[discipline]!
+          .map((resultat) => resultat.score)
+          .reduce((a, b) => a + b) /
+          testResults[discipline]!.length;
+
+      return BarChartGroupData(
+        x: index,
+        barRods: [BarChartRodData(toY: averageScore, color: Colors.blue)],
+      );
+    }).toList();
+
     return BarChart(
       BarChartData(
         alignment: BarChartAlignment.spaceEvenly,
-        barGroups: [
-          BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 40, color: Colors.blue)]),
-          BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: 30, color: Colors.red)]),
-          BarChartGroupData(x: 2, barRods: [BarChartRodData(toY: 90, color: Colors.green)]),
-        ],
+        barGroups: barGroups,
         titlesData: FlTitlesData(
           leftTitles: AxisTitles(
             sideTitles: SideTitles(showTitles: true, reservedSize: 60),
@@ -142,12 +158,14 @@ class BarChartWidget extends StatelessWidget {
               showTitles: true,
               reservedSize: 38,
               getTitlesWidget: (value, meta) {
-                switch (value.toInt()) {
-                  case 0: return Text('Java', style: TextStyle(color: Colors.white));
-                  case 1: return Text('Algo', style: TextStyle(color: Colors.white));
-                  case 2: return Text('HTML/CSS', style: TextStyle(color: Colors.white));
-                  default: return Text('');
+                int index = value.toInt();
+                if (index >= 0 && index < disciplines.length) {
+                  return Text(
+                    disciplines[index],
+                    style: TextStyle(color: Colors.white),
+                  );
                 }
+                return Text('');
               },
             ),
           ),
@@ -159,6 +177,7 @@ class BarChartWidget extends StatelessWidget {
   }
 }
 
+  
 class LineChartWidget extends StatelessWidget {
   final Map<String, double> scoresParDate;  
   
