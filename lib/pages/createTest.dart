@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cyclade/services/databaseService.dart';
 import 'package:flutter_cyclade/models/testModel.dart';
 import 'package:mongo_dart/mongo_dart.dart' show ObjectId;
+import 'package:flutter_cyclade/services/testService.dart';
 
 class CreateTestPage extends StatefulWidget {
   const CreateTestPage({Key? key}) : super(key: key);
@@ -27,7 +28,7 @@ class _CreateTestPageState extends State<CreateTestPage> {
       nom_discipline: testName,
     );
 
-    String result = await MongoDatabase.createTest(newTest);
+    String result = await TestService.createTest(newTest);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result)));
     Navigator.pop(context, newTest); // Retourne le nouveau test créé à AdminPage
   }

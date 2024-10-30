@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cyclade/services/databaseService.dart';
 import 'package:flutter_cyclade/models/questionModel.dart';
 import 'package:flutter_cyclade/models/testModel.dart';
+import 'package:flutter_cyclade/services/questionService.dart';
 import 'package:mongo_dart/mongo_dart.dart' show ObjectId;
 
 class EditQuestionPage extends StatefulWidget {
@@ -44,7 +45,7 @@ class _EditQuestionPageState extends State<EditQuestionPage> {
       reponse: int.parse(_correctAnswerController.text.trim()),
     );
 
-    final result = await MongoDatabase.updateQuestion(updatedQuestion);
+    final result = await QuestionService.updateQuestion(updatedQuestion);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result)));
     Navigator.pop(context, updatedQuestion); // Retourne la question mise à jour à la page précédente
   }
