@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_cyclade/services/databaseService.dart';
@@ -145,13 +147,19 @@ class LineChartWidget extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    final spots = scoresParDate.entries
-    .toList()
-    .asMap()
-    .entries
-    .map((entry) => FlSpot(entry.key.toDouble(), entry.value.value)) 
-    .toList();
+    // Trier les scores par date en ordre croissant
+    final sortedEntries = scoresParDate.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
 
+    
+    final spots = sortedEntries.asMap().entries.map((entry) {
+      final index = entry.key.toDouble(); 
+      final score = entry.value.value;   
+      return FlSpot(index, score);
+    }).toList();
+
+    
+    final labels = sortedEntries.map((entry) => entry.key).toList();
 
     return LineChart(
       LineChartData(
@@ -163,10 +171,33 @@ class LineChartWidget extends StatelessWidget {
             dotData: FlDotData(show: true),
           ),
         ],
-        
+        titlesData: FlTitlesData(
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                final index = value.toInt();
+                if (index >= 0 && index < labels.length) {
+                  return Text(
+                    labels[index], 
+                    style: TextStyle(color: Colors.white),
+                  );
+                }
+                return Text('');
+              },
+              interval: 1, 
+            ),
+          ),
+          leftTitles: AxisTitles( // Désactiver les titres de l'axe Y
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: AxisTitles( // Désactiver les titres en haut du graphique
+            sideTitles: SideTitles(showTitles: false),
+          ),
+        ),
+        borderData: FlBorderData(show: false),
+        gridData: FlGridData(show: true),
       ),
     );
   }
 }
-
-  

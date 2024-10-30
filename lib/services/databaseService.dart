@@ -282,7 +282,7 @@ class MongoDatabase {
     }
   }
 
-  // 2 services pour les graph
+  // 3 services pour les graph
   static Future<List<ResultatTest>> getAllScores() async {
   if (!await ensureConnection()) return [];
 
@@ -294,6 +294,7 @@ class MongoDatabase {
     return [];
   }
 }
+
 Future<double> calculerTauxReussiteGeneral() async {
   List<ResultatTest> resultats = await MongoDatabase.getAllScores();
 
@@ -309,14 +310,15 @@ Future<double> calculerTauxReussiteGeneral() async {
   return tauxReussite;
 }
 
+
 Future<Map<String, double>> calculerScoresParDate() async {
   List<ResultatTest> resultats = await MongoDatabase.getAllScores();
 
   Map<String, List<double>> scoresParDate = {};
   
   for (var resultat in resultats) {
-    String mois = "${resultat.date.year}-${resultat.date.month.toString().padLeft(2, '0')}";
-    
+    String mois = "${resultat.date.year}";
+    // -${resultat.date.month.toString().padLeft(2, '0')}
     if (!scoresParDate.containsKey(mois)) {
       scoresParDate[mois] = [];
     }
