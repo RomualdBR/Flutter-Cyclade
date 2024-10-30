@@ -59,13 +59,12 @@ class MongoDatabase {
     print("Ma fonction update");
     try {
       var result = await user.updateOne(
-        where.eq('_id', ObjectId.fromHexString(userData.id)),  // Utilisation de _id
-        modify
-            .set('prenom', userData.prenom)
-            .set('nom', userData.nom)
-            .set('email', userData.email)
-            .set('adresse', userData.adresse)
-      );
+          where.eq('_id', ObjectId.fromHexString(userData.id)), // Utilisation de _id
+          modify
+              .set('prenom', userData.prenom)
+              .set('nom', userData.nom)
+              .set('email', userData.email)
+              .set('adresse', userData.adresse));
       if (result.isAcknowledged) {
         print("succes");
         return "success";
@@ -124,56 +123,63 @@ class MongoDatabase {
 
   // 3 services pour les graph
   static Future<List<ResultatTest>> getAllScores() async {
-  if (!await ensureConnection()) return [];
+    if (!await ensureConnection()) return [];
 
-  try {
-    final scoresData = await resultatTest.find().toList();
-    return scoresData.map((json) => ResultatTest.fromJson(json)).toList();
-  } catch (e) {
-    log('Erreur Fatal de récupération des scores: ${e.toString()}');
-    return [];
-  }
-}
-
-Future<double> calculerTauxReussiteGeneral() async {
-  List<ResultatTest> resultats = await MongoDatabase.getAllScores();
-
-  if (resultats.isEmpty) {
-    log("Aucun score trouvé dans la base de données");
-    return 0.0;
-  }
-
-  double sommeScores = resultats.fold(0, (somme, resultat) => somme + resultat.score.toDouble());
-  double tauxReussite = sommeScores / resultats.length;
-
-  log("Taux de réussite calculé: $tauxReussite");
-  return tauxReussite;
-}
-
-
-Future<Map<String, double>> calculerScoresParDate() async {
-  List<ResultatTest> resultats = await MongoDatabase.getAllScores();
-
-  Map<String, List<double>> scoresParDate = {};
-  
-  for (var resultat in resultats) {
-    String mois = "${resultat.date.year}";
-    // -${resultat.date.month.toString().padLeft(2, '0')}
-    if (!scoresParDate.containsKey(mois)) {
-      scoresParDate[mois] = [];
+    try {
+      final scoresData = await resultatTest.find().toList();
+      return scoresData.map((json) => ResultatTest.fromJson(json)).toList();
+    } catch (e) {
+      log('Erreur Fatal de récupération des scores: ${e.toString()}');
+      return [];
     }
-    scoresParDate[mois]!.add(resultat.score.toDouble());
   }
 
-  Map<String, double> moyenneScoresParDate = {};
-  scoresParDate.forEach((mois, scores) {
-    moyenneScoresParDate[mois] = scores.reduce((a, b) => a + b) / scores.length;
-  });
+   static Future<List<ResultatTest>> getAllScoresByTest(String testId) async {
+    if (!await ensureConnection()) return [];
 
-  return moyenneScoresParDate;
-}
+    try {
+      final scoresData = await resultatTest.find({'id_test': testId}).toList();
+      return scoresData.map((json) => ResultatTest.fromJson(json)).toList();
+    } catch (e) {
+      log('Erreur Fatal de récupération des scores: ${e.toString()}');
+      return [];
+    }
+  }
 
-  
+  Future<double> calculerTauxReussiteGeneral() async {
+    List<ResultatTest> resultats = await MongoDatabase.getAllScores();
 
-  
+    if (resultats.isEmpty) {
+      log("Aucun score trouvé dans la base de données");
+      return 0.0;
+    }
+
+    double sommeScores = resultats.fold(0, (somme, resultat) => somme + resultat.score.toDouble());
+    double tauxReussite = sommeScores / resultats.length;
+
+    log("Taux de réussite calculé: $tauxReussite");
+    return tauxReussite;
+  }
+
+  Future<Map<String, double>> calculerScoresParDate() async {
+    List<ResultatTest> resultats = await MongoDatabase.getAllScores();
+
+    Map<String, List<double>> scoresParDate = {};
+
+    for (var resultat in resultats) {
+      String mois = "${resultat.date.year}";
+      // -${resultat.date.month.toString().padLeft(2, '0')}
+      if (!scoresParDate.containsKey(mois)) {
+        scoresParDate[mois] = [];
+      }
+      scoresParDate[mois]!.add(resultat.score.toDouble());
+    }
+
+    Map<String, double> moyenneScoresParDate = {};
+    scoresParDate.forEach((mois, scores) {
+      moyenneScoresParDate[mois] = scores.reduce((a, b) => a + b) / scores.length;
+    });
+
+    return moyenneScoresParDate;
+  }
 }

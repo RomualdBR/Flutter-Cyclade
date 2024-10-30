@@ -15,4 +15,7 @@ class Test {
         id: (json['_id'] as ObjectId).toHexString(),
         nom_discipline: json['nom_discipline'] ?? '',
       );
+
+  @override
+  String toString() => 'Test(id: $id, nom_discipline: $nom_discipline)';
 }

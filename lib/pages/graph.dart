@@ -2,7 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_cyclade/models/questionModel.dart';
+import 'package:flutter_cyclade/models/resultatTestModel.dart';
+import 'package:flutter_cyclade/models/testModel.dart';
 import 'package:flutter_cyclade/services/databaseService.dart';
+import 'package:flutter_cyclade/services/questionService.dart';
+import 'package:flutter_cyclade/services/testService.dart';
+import 'package:flutter_cyclade/services/resultService.dart';
 
 class GraphPage extends StatefulWidget {
   @override
@@ -13,10 +19,23 @@ class _GraphPageState extends State<GraphPage> {
   Map<String, double> scoresParDate = {};
   double tauxReussiteGeneral = 0.0;
 
+  List<Test> _tests = [];
+  Map<String, List<ResultatTest>> _testResults = {};
+
   @override
   void initState() {
     super.initState();
     fetchData();
+    _loadResultsByTests();
+  }
+
+  Future<void> _loadResultsByTests() async {
+    _tests = await TestService.getAllTests();
+    for (var test in _tests) {
+      _testResults[test.id] = await MongoDatabase.getAllScoresByTest(test.id);
+    }
+    setState(() {});
+    print(_testResults);
   }
 
   void fetchData() async {
