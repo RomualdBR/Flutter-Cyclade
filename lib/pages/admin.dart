@@ -1,31 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cyclade/models/resultatTestModel.dart';
-import 'package:flutter_cyclade/services/databaseService.dart';
 import 'package:flutter_cyclade/models/questionModel.dart';
 import 'package:flutter_cyclade/models/testModel.dart';
-import 'package:mongo_dart/mongo_dart.dart'
-    show ObjectId;
+import 'package:mongo_dart/mongo_dart.dart' show ObjectId;
 import './editQuestion.dart';
 import './editTest.dart';
 import './createTest.dart';
 import './createQuestion.dart';
+import 'package:flutter_cyclade/services/questionService.dart';
+import 'package:flutter_cyclade/services/testService.dart';
+import 'package:flutter_cyclade/services/resultService.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
 
   @override
-  State<AdminPage> createState() =>
-      _AdminPageState();
+  State<AdminPage> createState() => _AdminPageState();
 }
 
-class _AdminPageState
-    extends State<AdminPage> {
+class _AdminPageState extends State<AdminPage> {
   List<Test> _tests = [];
-  Map<String, List<Question>>
-      _testQuestions = {};
-  final TextEditingController
-      _testNameController =
-      TextEditingController();
+  Map<String, List<Question>> _testQuestions = {};
+  final TextEditingController _testNameController = TextEditingController();
 
   @override
   void initState() {
@@ -33,65 +29,39 @@ class _AdminPageState
     _loadTestsAndQuestions();
   }
 
-  Future<void>
-      _loadTestsAndQuestions() async {
-    _tests = await MongoDatabase
-        .getAllTests();
+  Future<void> _loadTestsAndQuestions() async {
+    _tests = await TestService.getAllTests();
     for (var test in _tests) {
-      _testQuestions[test.id] =
-          await MongoDatabase
-              .getQuestionsByTestId(
-                  test.id);
+      _testQuestions[test.id] = await QuestionService.getQuestionsByTestId(test.id);
     }
     setState(() {});
   }
 
   Future<void> _createTest() async {
-    String testName =
-        _testNameController.text.trim();
+    String testName = _testNameController.text.trim();
     if (testName.isEmpty) return;
 
-    var newTest = Test(
-        id: ObjectId().toHexString(),
-        nom_discipline: testName);
-    String result =
-        await MongoDatabase.createTest(
-            newTest);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(
-            content: Text(result)));
+    var newTest = Test(id: ObjectId().toHexString(), nom_discipline: testName);
+    String result = await TestService.createTest(newTest);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result)));
     _testNameController.clear();
     _loadTestsAndQuestions();
   }
 
-  Future<void> _deleteTest(
-      String testId) async {
-    final result =
-        await MongoDatabase.deleteTest(
-            testId);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(
-            content: Text(result)));
+  Future<void> _deleteTest(String testId) async {
+    final result = await TestService.deleteTest(testId);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result)));
     _loadTestsAndQuestions();
   }
 
-  Future<void> _editTest(
-      Test test) async {
-    final updatedTest =
-        await Navigator.push(
+  Future<void> _editTest(Test test) async {
+    final updatedTest = await Navigator.push(
       context,
-      MaterialPageRoute(
-          builder: (context) =>
-              EditTestPage(test: test)),
+      MaterialPageRoute(builder: (context) => EditTestPage(test: test)),
     );
     if (updatedTest != null) {
       setState(() {
-        _tests = _tests
-            .map<Test>((t) =>
-                t.id == test.id
-                    ? updatedTest
-                    : t)
-            .toList();
+        _tests = _tests.map<Test>((t) => t.id == test.id ? updatedTest : t).toList();
       });
     }
   }
@@ -109,42 +79,27 @@ class _AdminPageState
     }
   }
 
-  Future<void> _deleteQuestion(
-      String questionId,
-      String testId) async {
-    final result = await MongoDatabase
-        .deleteQuestion(questionId);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(
-            content: Text(result)));
+  Future<void> _deleteQuestion(String questionId, String testId) async {
+    final result = await QuestionService.deleteQuestion(questionId);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result)));
     _loadTestsAndQuestions();
   }
 
-  Future<void> _editQuestion(
-      Question question) async {
-    final updatedQuestion =
-        await Navigator.push(
+  Future<void> _editQuestion(Question question) async {
+    final updatedQuestion = await Navigator.push(
       context,
-      MaterialPageRoute(
-          builder: (context) =>
-              EditQuestionPage(
-                  question: question)),
+      MaterialPageRoute(builder: (context) => EditQuestionPage(question: question)),
     );
     if (updatedQuestion != null) {
       setState(() {
-        _testQuestions[question
-            .id_test] = _testQuestions[
-                question.id_test]!
-            .map<Question>((q) =>
-                q.id == question.id
-                    ? updatedQuestion
-                    : q)
+        _testQuestions[question.id_test] = _testQuestions[question.id_test]!
+            .map<Question>((q) => q.id == question.id ? updatedQuestion : q)
             .toList();
       });
     }
   }
 
-   Future<void> _addQuestion(String testId) async {
+  Future<void> _addQuestion(String testId) async {
     final newQuestion = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => CreateQuestionPage(testId: testId)),
@@ -175,86 +130,53 @@ class _AdminPageState
       score: score,
     );
 
-    String result = await MongoDatabase.createResult(newResult);
+    String result = await ResultService.createResult(newResult);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          title: const Text(
-              "Panel Admin")),
+      appBar: AppBar(title: const Text("Panel Admin")),
       body: ListView(
-        padding:
-            const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         children: [
           ElevatedButton(
-            onPressed:
-                graphiques,
-            child: const Text(
-                "Graphique : taux de réussite global"),
+            onPressed: graphiques,
+            child: const Text("Graphique : taux de réussite global"),
           ),
           ElevatedButton(
-            onPressed:
-                _navigateToCreateTest,
-            child: const Text(
-                "Créer un Test"),
+            onPressed: _navigateToCreateTest,
+            child: const Text("Créer un Test"),
           ),
           ElevatedButton(
-            onPressed:
-                _createResult,
-            child: const Text(
-                "Créer un Résultat générique"),
+            onPressed: _createResult,
+            child: const Text("Créer un Résultat générique"),
           ),
           const SizedBox(height: 20),
           ..._tests.map((test) => Card(
                 elevation: 2,
-                margin: const EdgeInsets
-                    .symmetric(
-                    vertical: 8.0),
+                margin: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Padding(
-                  padding:
-                      const EdgeInsets
-                          .all(8.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment
-                            .start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment
-                                .spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             test.nom_discipline,
-                            style: const TextStyle(
-                                fontSize:
-                                    18,
-                                fontWeight:
-                                    FontWeight.bold),
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           Row(
                             children: [
                               IconButton(
-                                icon: const Icon(
-                                    Icons
-                                        .edit,
-                                    color:
-                                        Colors.blue),
-                                onPressed:
-                                    () =>
-                                        _editTest(test),
+                                icon: const Icon(Icons.edit, color: Colors.blue),
+                                onPressed: () => _editTest(test),
                               ),
                               IconButton(
-                                icon: const Icon(
-                                    Icons
-                                        .delete,
-                                    color:
-                                        Colors.red),
-                                onPressed:
-                                    () =>
-                                        _deleteTest(test.id),
+                                icon: const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () => _deleteTest(test.id),
                               ),
                             ],
                           ),
@@ -265,44 +187,37 @@ class _AdminPageState
                         onPressed: () => _addQuestion(test.id),
                         child: const Text("Ajouter une question"),
                       ),
-                      ...(_testQuestions[test
-                                  .id] ??
-                              [])
-                          .map(
-                              (question) =>
-                                  Card(
-                                    elevation:
-                                        1,
-                                    margin:
-                                        const EdgeInsets.symmetric(vertical: 4.0),
-                                    child:
-                                        ListTile(
-                                      title: Text(question.intitule),
-                                      subtitle: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text("1: ${question.proposition_1}"),
-                                          Text("2: ${question.proposition_2}"),
-                                          Text("3: ${question.proposition_3}"),
-                                          Text("4: ${question.proposition_4}"),
-                                          Text("Réponse: ${question.reponse}"),
-                                        ],
-                                      ),
-                                      trailing: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          IconButton(
-                                            icon: const Icon(Icons.edit, color: Colors.blue),
-                                            onPressed: () => _editQuestion(question),
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(Icons.delete, color: Colors.red),
-                                            onPressed: () => _deleteQuestion(question.id, test.id),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  )),
+                      ...(_testQuestions[test.id] ?? []).map((question) => Card(
+                            elevation: 1,
+                            margin: const EdgeInsets.symmetric(vertical: 4.0),
+                            child: ListTile(
+                              title: Text(question.intitule),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("1: ${question.proposition_1}"),
+                                  Text("2: ${question.proposition_2}"),
+                                  Text("3: ${question.proposition_3}"),
+                                  Text("4: ${question.proposition_4}"),
+                                  Text("Réponse: ${question.reponse}"),
+                                  Text("Durée: ${question.seconds}s"),
+                                ],
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit, color: Colors.blue),
+                                    onPressed: () => _editQuestion(question),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () => _deleteQuestion(question.id, test.id),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )),
                     ],
                   ),
                 ),
