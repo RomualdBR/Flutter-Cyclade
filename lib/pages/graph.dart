@@ -35,6 +35,7 @@ class _GraphPageState extends State<GraphPage> {
     }
     setState(() {}); 
     print(_testResults);
+    
   }
 
   void fetchData() async {
@@ -83,7 +84,6 @@ class ChartCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-     
       child: AnimatedContainer(
         duration: Duration(milliseconds: 200),
         curve: Curves.easeInOut,
@@ -129,29 +129,40 @@ class BarChartWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final disciplines = testResults.keys.toList();
+
     final barGroups = disciplines.asMap().entries.map((entry) {
       int index = entry.key;
       String discipline = entry.value;
 
-      // Calcul de la moyenne des scores pour chaque discipline
-      double averageScore = testResults[discipline]!
-          .map((resultat) => resultat.score)
-          .reduce((a, b) => a + b) /
-          testResults[discipline]!.length;
+      // Calcul du pourcentage de réussite pour chaque discipline
+      int totalNotes = testResults[discipline]!.length;
+      int notesSup10 = testResults[discipline]!
+          .where((resultat) => resultat.score > 10)
+          .length;
+      double pourcentageReussite = (notesSup10 / totalNotes) * 100;
 
       return BarChartGroupData(
         x: index,
-        barRods: [BarChartRodData(toY: averageScore, color: Colors.blue)],
+        barRods: [
+          BarChartRodData(
+            toY: pourcentageReussite, // Affichage du pourcentage de réussite
+            color: Colors.blue,
+          ),
+        ],
       );
     }).toList();
 
     return BarChart(
       BarChartData(
+        
         alignment: BarChartAlignment.spaceEvenly,
         barGroups: barGroups,
         titlesData: FlTitlesData(
+          topTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: false)
+          ),
           leftTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: true, reservedSize: 60),
+            sideTitles: SideTitles(showTitles: false, ),
           ),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
@@ -159,23 +170,27 @@ class BarChartWidget extends StatelessWidget {
               reservedSize: 38,
               getTitlesWidget: (value, meta) {
                 int index = value.toInt();
-                if (index >= 0 && index < disciplines.length) {
+                
                   return Text(
                     disciplines[index],
                     style: TextStyle(color: Colors.white),
                   );
-                }
+                
                 return Text('');
               },
+              
             ),
           ),
         ),
         borderData: FlBorderData(show: false),
         gridData: FlGridData(show: false),
+        
+        
       ),
     );
   }
 }
+
 
   
 class LineChartWidget extends StatelessWidget {
