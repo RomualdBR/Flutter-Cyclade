@@ -21,7 +21,7 @@ class _EditQuestionPageState extends State<EditQuestionPage> {
   late TextEditingController _prop3Controller;
   late TextEditingController _prop4Controller;
   late TextEditingController _secondsController;
-  late int _reponseController = 1; // Stocke la réponse correcte sélectionnée
+  late List<bool> _reponseController;
 
   @override
   void initState() {
@@ -33,7 +33,7 @@ class _EditQuestionPageState extends State<EditQuestionPage> {
     _prop3Controller = TextEditingController(text: widget.question.proposition_3);
     _prop4Controller = TextEditingController(text: widget.question.proposition_4);
     _secondsController = TextEditingController(text: widget.question.seconds.toString());
-    _reponseController = widget.question.reponse;
+    _reponseController = List<bool>.from(widget.question.reponse);
   }
 
   // Fonction pour mettre à jour la question
@@ -46,7 +46,7 @@ class _EditQuestionPageState extends State<EditQuestionPage> {
       proposition_2: _prop2Controller.text.trim(),
       proposition_3: _prop3Controller.text.trim(),
       proposition_4: _prop4Controller.text.trim(),
-      reponse: _reponseController, // Réponse correcte sélectionnée
+      reponse: _reponseController, // Réponses sélectionnées
       seconds: int.parse(_secondsController.text.trim()), // Durée de la question
     );
 
@@ -87,51 +87,44 @@ class _EditQuestionPageState extends State<EditQuestionPage> {
               controller: _prop4Controller,
               decoration: const InputDecoration(labelText: "Proposition 4"),
             ),
-            const Text("Sélectionnez la bonne réponse"),
-            // Options radio pour sélectionner la réponse correcte
-            Row(
-              children: [
-                Radio<int>(
-                  value: 1,
-                  groupValue: _reponseController,
-                  onChanged: (int? value) {
-                    setState(() {
-                      _reponseController = value!;
-                    });
-                  },
-                ),
-                const Text("1"),
-                Radio<int>(
-                  value: 2,
-                  groupValue: _reponseController,
-                  onChanged: (int? value) {
-                    setState(() {
-                      _reponseController = value!;
-                    });
-                  },
-                ),
-                const Text("2"),
-                Radio<int>(
-                  value: 3,
-                  groupValue: _reponseController,
-                  onChanged: (int? value) {
-                    setState(() {
-                      _reponseController = value!;
-                    });
-                  },
-                ),
-                const Text("3"),
-                Radio<int>(
-                  value: 4,
-                  groupValue: _reponseController,
-                  onChanged: (int? value) {
-                    setState(() {
-                      _reponseController = value!;
-                    });
-                  },
-                ),
-                const Text("4"),
-              ],
+            const SizedBox(height: 20),
+            const Text("Sélectionnez les bonnes réponses :"),
+            // Choix des réponses pour le qcm
+            CheckboxListTile(
+              title: const Text("Proposition 1"),
+              value: _reponseController[0],
+              onChanged: (bool? value) {
+                setState(() {
+                  _reponseController[0] = value ?? false;
+                });
+              },
+            ),
+            CheckboxListTile(
+              title: const Text("Proposition 2"),
+              value: _reponseController[1],
+              onChanged: (bool? value) {
+                setState(() {
+                  _reponseController[1] = value ?? false;
+                });
+              },
+            ),
+            CheckboxListTile(
+              title: const Text("Proposition 3"),
+              value: _reponseController[2],
+              onChanged: (bool? value) {
+                setState(() {
+                  _reponseController[2] = value ?? false;
+                });
+              },
+            ),
+            CheckboxListTile(
+              title: const Text("Proposition 4"),
+              value: _reponseController[3],
+              onChanged: (bool? value) {
+                setState(() {
+                  _reponseController[3] = value ?? false;
+                });
+              },
             ),
             // Champ pour saisir la durée de la question (en secondes)
             TextField(
@@ -141,7 +134,6 @@ class _EditQuestionPageState extends State<EditQuestionPage> {
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 20), // Espace avant le bouton de mise à jour
-
             // Bouton pour enregistrer les modifications
             ElevatedButton(
               onPressed: _updateQuestion,
