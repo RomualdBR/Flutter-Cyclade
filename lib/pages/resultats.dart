@@ -192,7 +192,7 @@ class _ResultatsPageState extends State<ResultatsPage> {
                                       const Icon(Icons.star, color: Colors.amber),
                                       const SizedBox(width: 8),
                                       Text(
-                                        "Score: ${test['score']}/20",
+                                        "Score: ${test['score']}/${test['question_count']}", // Modifié pour afficher le score basé sur le nombre de questions
                                         style: const TextStyle(
                                           color: Colors.deepPurple,
                                           fontSize: 14,

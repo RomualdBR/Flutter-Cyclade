@@ -107,6 +107,8 @@ class MongoDatabase {
     }
   }
 
+
+  // Récupère tous les scores de tests
   static Future<List<ResultatTest>> getAllScores() async {
     if (!await ensureConnection()) return [];
     try {
@@ -174,12 +176,16 @@ class MongoDatabase {
         var userDetails = await user.findOne({'_id': ObjectId.fromHexString(result['id_user'])});
         var testDetails = await test.findOne({'_id': ObjectId.fromHexString(result['id_test'])});
 
+        // Récupérer le nombre de questions pour le test
+        var questionCount = await question.count(where.eq('id_test', result['id_test']));
+
         if (userDetails != null && testDetails != null) {
           resultList.add({
             'user_name': userDetails['nom'],
             'test_name': testDetails['nom_discipline'],
             'date': result['date'],
             'score': result['score'],
+            'question_count': questionCount, // Ajoutez le nombre de questions
           });
         }
       }
@@ -190,4 +196,5 @@ class MongoDatabase {
       return [];
     }
   }
+
 }
