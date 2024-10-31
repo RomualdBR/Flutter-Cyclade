@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cyclade/constant.dart';
 import 'package:flutter_cyclade/services/databaseService.dart';
 import 'package:flutter_cyclade/models/userModel.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_cyclade/UserProvider.dart';
+import 'package:flutter_cyclade/models/motivationModel.dart';
+import 'package:flutter_cyclade/motivationProvider.dart';
+
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -17,56 +22,21 @@ class _MyHomePageState extends State<ProfilePage> {
   String email = userData.email.toString();
   String adresse = userData.adresse.toString();
   String formErrorText = ""; // Message d'erreur à afficher sous le formulaire
+  List<Motivation> motivations = [];
+  String _selectedMotivationId = userData.id_motivation;
 
-  void _disconnectUser() async {
-    if (userData.id != "0") {
-      // Déconnexion de l'utilisateur en réinitialisant les données utilisateur
-      userData = User(
-          id: "0",
-          nom: "nom",
-          prenom: "prenom",
-          email: "email",
-          age: 0,
-          adresse: "adresse",
-          role: false,
-          id_motivation: "0",
-          mot_de_passe: "mot_de_passe");
-      Navigator.pushReplacementNamed(context, '/'); // Redirection vers l'accueil après déconnexion
-    }
-  }
-
-  Future<void> _updateUser() async {
-    if (_formkey.currentState!.validate()) { // Vérifie la validité du formulaire
-      _formkey.currentState!.save(); // Sauvegarde les données mises à jour dans le formulaire
-      final updateUser = User(
-        id: userData.id.toString(),
-        prenom: prenom,
-        nom: nom,
-        email: email,
-        age: userData.age,
-        adresse: adresse,
-        role: userData.role,
-        id_motivation: userData.id_motivation,
-        mot_de_passe: userData.mot_de_passe,
-      );
-      try {
-        var result = await MongoDatabase.update(updateUser); // Envoie les données mises à jour à la base de données
-        if (result != null) {
-          userData = updateUser; // Met à jour les informations utilisateur dans l'application
-        }
-      } catch (e) {
-        // Gestion de l'erreur d'échec de mise à jour
-        print("Failed to update user: $e");
-        setState(() {
-          formErrorText = "Failed to update";
-        });
-      }
-    }
+  @override
+  void initState() {
+    super.initState();
+    // Charger les motivations au démarrage de la page
+    Provider.of<MotivationProvider>(context, listen: false).loadMotivations();
   }
 
   // Construction de la page de profil
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+    final motivationProvider = Provider.of<MotivationProvider>(context);
     return Scaffold(
       appBar: AppBar(title: const Text("Profile")),
       body: Form(
@@ -75,18 +45,18 @@ class _MyHomePageState extends State<ProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Affichage des informations utilisateur actuelles
-            Text("Prénom : " + userData.prenom.toString()),
-            Text("Nom : " + userData.nom.toString()),
-            Text("Email : " + userData.email.toString()),
-            Text("Age : " + userData.age.toString()),
-            Text("Adresse : " + userData.adresse.toString()),
-            Text("Motivation : " + userData.id_motivation.toString()),
+            Text("Prénom : ${userProvider.user.prenom}"),
+            Text("Nom : ${userProvider.user.nom}"),
+            Text("Email : ${userProvider.user.email}"),
+            Text("Adresse : ${userProvider.user.adresse}"),
+            Text("Age : ${userProvider.user.age}"),
+            Text("Motivation : ${userProvider.user.id_motivation}"),
             if (userData.role == true) Text("Rôle : " + userData.role.toString()),
             
             // Champs pour modifier les informations utilisateur
             TextFormField(
               decoration: const InputDecoration(labelText: "Nouvelle adresse"),
-              initialValue: adresse,
+              initialValue: userProvider.user.adresse,
               onChanged: (value) {
                 setState(() {
                   adresse = value;
@@ -95,7 +65,7 @@ class _MyHomePageState extends State<ProfilePage> {
             ),
             TextFormField(
               decoration: const InputDecoration(labelText: "Nouvel email"),
-              initialValue: email,
+              initialValue: userProvider.user.email,
               onChanged: (value) {
                 setState(() {
                   email = value;
@@ -104,7 +74,7 @@ class _MyHomePageState extends State<ProfilePage> {
             ),
             TextFormField(
               decoration: const InputDecoration(labelText: "Nouveau nom"),
-              initialValue: nom,
+              initialValue: userProvider.user.nom,
               onChanged: (value) {
                 setState(() {
                   nom = value;
@@ -113,17 +83,45 @@ class _MyHomePageState extends State<ProfilePage> {
             ),
             TextFormField(
               decoration: const InputDecoration(labelText: "Nouveau prénom"),
-              initialValue: prenom,
+              initialValue: userProvider.user.prenom,
               onChanged: (value) {
                 setState(() {
                   prenom = value;
                 });
               },
             ),
+
+            DropdownButtonFormField<String>(
+              decoration: const InputDecoration(labelText: 'Motivation'),
+              value: userData.id_motivation,
+              items: motivationProvider.motivations.map((motivation) {
+                return DropdownMenuItem<String>(
+                  value: motivation.id,
+                  child: Text(motivation.nom),
+                );
+              }).toList(),
+              onChanged: (value) => setState(() => _selectedMotivationId = value!),
+              validator: (value) => value == null || value.isEmpty
+                  ? 'Veuillez sélectionner une motivation'
+                  : null,
+            ),
             
             // Bouton pour mettre à jour les informations utilisateur
             ElevatedButton(
-              onPressed: _updateUser,
+              onPressed: () {
+                final updatedUser = User(
+                  id: userProvider.user.id,
+                  nom: nom,
+                  prenom: prenom,
+                  email: email,
+                  adresse: adresse,
+                  age: userProvider.user.age,
+                  role: userProvider.user.role,
+                  id_motivation: _selectedMotivationId,
+                  mot_de_passe: userProvider.user.mot_de_passe,
+                );
+                userProvider.updateUser(updatedUser);
+              },
               child: const Text("Mettre à jour"),
             ),
             
@@ -135,11 +133,10 @@ class _MyHomePageState extends State<ProfilePage> {
               ),
             
             // Bouton pour se déconnecter si l'utilisateur est connecté
-            if (userData.id != "0")
-              ElevatedButton(
-                onPressed: _disconnectUser,
-                child: const Text("Se déconnecter"),
-              ),
+            ElevatedButton(
+              onPressed: () => userProvider.disconnectUser(),
+              child: const Text("Se déconnecter"),
+            ),
           ],
         ),
       ),
