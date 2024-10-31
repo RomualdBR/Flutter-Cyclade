@@ -2,15 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cyclade/pages/accueil.dart';
 import 'package:flutter_cyclade/pages/inscription.dart';
 import 'package:flutter_cyclade/pages/connexion.dart';
+import 'package:flutter_cyclade/pages/passTest.dart';
 import 'package:flutter_cyclade/pages/profile.dart';
 import 'package:flutter_cyclade/pages/evaluations.dart';
 import 'package:flutter_cyclade/pages/graph.dart';
 import 'package:flutter_cyclade/pages/resultats.dart';
 import 'package:flutter_cyclade/pages/admin.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_cyclade/UserProvider.dart';
+import 'package:flutter_cyclade/motivationProvider.dart';
 
 // Lancement de l'application
 void main() {
-  runApp(MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => MotivationProvider()),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 // Le routeur
