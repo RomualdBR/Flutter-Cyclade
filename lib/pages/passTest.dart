@@ -18,13 +18,13 @@ class PassTestPage extends StatefulWidget {
 
 class _PassTestPageState extends State<PassTestPage> {
   String titleTest = "NomTest";
-  int currentIndex = 0; // Index pour suivre la question actuelle
-  List<Question> questions = []; // Liste pour stocker les questions
-  late Question currentQuestion; // Question actuelle
-  late Timer _timer; // Minuteur
-  int _timeRemaining = 0; // Temps restant pour la question actuelle
-  int score = 0; // Compteur de bonnes réponses
-  int? _selectedAnswer; // Pour gérer la sélection de réponse
+  int currentIndex = 0;
+  List<Question> questions = [];
+  late Question currentQuestion;
+  late Timer _timer;
+  int _timeRemaining = 0;
+  int score = 0;
+  List<bool> _selectedAnswers = [false, false, false, false];
 
   @override
   void initState() {
@@ -32,17 +32,19 @@ class _PassTestPageState extends State<PassTestPage> {
     loadQuestions();
   }
 
+  // Chargement des questions
   Future<void> loadQuestions() async {
     questions = await QuestionService.getQuestionsByTestId(widget.testId);
     if (questions.isNotEmpty) {
       setState(() {
         currentQuestion = questions[currentIndex];
-        _timeRemaining = currentQuestion.seconds; // Initialise le timer avec le temps de la première question
+        _timeRemaining = currentQuestion.seconds;
       });
       startTimer();
     }
   }
 
+  // Début du timer
   void startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_timeRemaining > 0) {
@@ -51,34 +53,35 @@ class _PassTestPageState extends State<PassTestPage> {
         });
       } else {
         _timer.cancel();
-        nextQuestion(isTimeUp: true); // Passe à la question suivante lorsque le temps est écoulé
+        nextQuestion(isTimeUp: true);
       }
     });
   }
 
+  // Passer à la prochaine question 
   void nextQuestion({bool isTimeUp = false}) {
-    if (_timer.isActive) _timer.cancel(); // Arrête le timer de la question actuelle
+    if (_timer.isActive) _timer.cancel();
 
-    // Vérifie la bonne réponse si l'utilisateur a répondu dans le temps imparti
-    if (!isTimeUp && _selectedAnswer == currentQuestion.reponse) {
-      score++; // Incrémente le score pour une bonne réponse
+    // Compare la réponse de l'utilisateur avec la bonne réponse
+    if (!isTimeUp && _selectedAnswers.toString() == currentQuestion.reponse.toString()) {
+      score++;
     }
 
     if (currentIndex < questions.length - 1) {
       setState(() {
         currentIndex++;
         currentQuestion = questions[currentIndex];
-        _timeRemaining = currentQuestion.seconds; // Redémarre le temps pour la nouvelle question
-        _selectedAnswer = null; // Réinitialise la sélection de réponse
+        _timeRemaining = currentQuestion.seconds;
+        _selectedAnswers = [false, false, false, false];
       });
-      startTimer(); // Redémarre le timer pour la nouvelle question
+      startTimer();
     } else {
-      _completeTest(); // Envoie le résultat si le test est terminé
+      _completeTest();
     }
   }
 
+  // Dire que le test est terminé et crée un résultat
   Future<void> _completeTest() async {
-    // Fonction d'envoi du score en BDD
     DateTime date = DateTime.now();
     String id_user = userData.id;
     String id_test = widget.testId;
@@ -93,7 +96,6 @@ class _PassTestPageState extends State<PassTestPage> {
 
     await ResultService.createResult(newResult);
 
-    // Affiche un message de confirmation et retourne à la page précédente
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -102,8 +104,8 @@ class _PassTestPageState extends State<PassTestPage> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context); // Ferme le dialogue
-              Navigator.pop(context); // Retourne à la page précédente
+              Navigator.pop(context);
+              Navigator.pop(context);
             },
             child: Text("OK"),
           ),
@@ -114,7 +116,7 @@ class _PassTestPageState extends State<PassTestPage> {
 
   @override
   void dispose() {
-    _timer.cancel(); // Annule le timer lors de la fermeture de la page
+    _timer.cancel();
     super.dispose();
   }
 
@@ -125,81 +127,57 @@ class _PassTestPageState extends State<PassTestPage> {
         title: Text("$titleTest - Q${currentIndex + 1}"),
       ),
       body: questions.isEmpty
-          ? Center(child: CircularProgressIndicator()) // Loader en attendant les questions
+          ? Center(child: CircularProgressIndicator())
           : Column(
               children: [
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Text(currentQuestion.intitule, style: TextStyle(fontSize: 18)), // Affiche l'intitulé de la question
+                  child: Text(currentQuestion.intitule, style: TextStyle(fontSize: 18)),
                 ),
-                Text("Temps restant : $_timeRemaining s", style: TextStyle(fontSize: 16)), // Affiche le temps restant
+                Text("Temps restant : $_timeRemaining s", style: TextStyle(fontSize: 16)),
                 Column(
                   children: [
-                    // Proposition 1
-                    Row(
-                      children: [
-                        Radio<int>(
-                          value: 1,
-                          groupValue: _selectedAnswer,
-                          onChanged: (int? value) {
-                            setState(() {
-                              _selectedAnswer = value;
-                            });
-                          },
-                        ),
-                        Text(currentQuestion.proposition_1),
-                      ],
+                    CheckboxListTile(
+                      title: Text(currentQuestion.proposition_1),
+                      value: _selectedAnswers[0],
+                      onChanged: (bool? value) {
+                        setState(() {
+                          _selectedAnswers[0] = value ?? false;
+                        });
+                      },
                     ),
-                    // Proposition 2
-                    Row(
-                      children: [
-                        Radio<int>(
-                          value: 2,
-                          groupValue: _selectedAnswer,
-                          onChanged: (int? value) {
-                            setState(() {
-                              _selectedAnswer = value;
-                            });
-                          },
-                        ),
-                        Text(currentQuestion.proposition_2),
-                      ],
+                    CheckboxListTile(
+                      title: Text(currentQuestion.proposition_2),
+                      value: _selectedAnswers[1],
+                      onChanged: (bool? value) {
+                        setState(() {
+                          _selectedAnswers[1] = value ?? false;
+                        });
+                      },
                     ),
-                    // Proposition 3
-                    Row(
-                      children: [
-                        Radio<int>(
-                          value: 3,
-                          groupValue: _selectedAnswer,
-                          onChanged: (int? value) {
-                            setState(() {
-                              _selectedAnswer = value;
-                            });
-                          },
-                        ),
-                        Text(currentQuestion.proposition_3),
-                      ],
+                    CheckboxListTile(
+                      title: Text(currentQuestion.proposition_3),
+                      value: _selectedAnswers[2],
+                      onChanged: (bool? value) {
+                        setState(() {
+                          _selectedAnswers[2] = value ?? false;
+                        });
+                      },
                     ),
-                    // Proposition 4
-                    Row(
-                      children: [
-                        Radio<int>(
-                          value: 4,
-                          groupValue: _selectedAnswer,
-                          onChanged: (int? value) {
-                            setState(() {
-                              _selectedAnswer = value;
-                            });
-                          },
-                        ),
-                        Text(currentQuestion.proposition_4),
-                      ],
+                    CheckboxListTile(
+                      title: Text(currentQuestion.proposition_4),
+                      value: _selectedAnswers[3],
+                      onChanged: (bool? value) {
+                        setState(() {
+                          _selectedAnswers[3] = value ?? false;
+                        });
+                      },
                     ),
                   ],
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    nextQuestion(); // Passe à la question suivante
+                    nextQuestion();
                   },
                   child: const Text("Valider"),
                 ),
