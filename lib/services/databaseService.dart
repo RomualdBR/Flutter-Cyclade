@@ -119,8 +119,6 @@ class MongoDatabase {
     }
   }
 
-  // Services de récupération pour les graphiques
-
   // Récupère tous les scores de tests
   static Future<List<ResultatTest>> getAllScores() async {
     if (!await ensureConnection()) return [];
@@ -183,31 +181,35 @@ class MongoDatabase {
   }
 
   static Future<List<Map<String, dynamic>>> getPassedTests() async {
-  if (!await ensureConnection()) return [];
+    if (!await ensureConnection()) return [];
 
-  try {
-    final results = await resultatTest.find().toList();
+    try {
+      final results = await resultatTest.find().toList();
+      List<Map<String, dynamic>> resultList = [];
 
-    List<Map<String, dynamic>> resultList = [];
-    for (var result in results) {
-      var userDetails = await user.findOne({'_id': ObjectId.fromHexString(result['id_user'])});
-      
-      var testDetails = await test.findOne({'_id': ObjectId.fromHexString(result['id_test'])});
+      for (var result in results) {
+        var userDetails = await user.findOne({'_id': ObjectId.fromHexString(result['id_user'])});
+        var testDetails = await test.findOne({'_id': ObjectId.fromHexString(result['id_test'])});
 
-      if (userDetails != null && testDetails != null) {
-        resultList.add({
-          'user_name': userDetails['nom'],
-          'test_name': testDetails['nom_discipline'],
-          'date': result['date'],
-          'score': result['score'],
-        });
+        // Récupérer le nombre de questions pour le test
+        var questionCount = await question.count(where.eq('id_test', result['id_test']));
+
+        if (userDetails != null && testDetails != null) {
+          resultList.add({
+            'user_name': userDetails['nom'],
+            'test_name': testDetails['nom_discipline'],
+            'date': result['date'],
+            'score': result['score'],
+            'question_count': questionCount, // Ajoutez le nombre de questions
+          });
+        }
       }
-    }
 
-    return resultList;
-  } catch (e) {
-    log('Error fetching passed tests: ${e.toString()}');
-    return [];
+      return resultList;
+    } catch (e) {
+      log('Error fetching passed tests: ${e.toString()}');
+      return [];
+    }
   }
-  }
+
 }
