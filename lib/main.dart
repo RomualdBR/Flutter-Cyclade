@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cyclade/pages/accueil.dart';
 import 'package:flutter_cyclade/pages/inscription.dart';
 import 'package:flutter_cyclade/pages/connexion.dart';
+import 'package:flutter_cyclade/pages/passTest.dart';
 import 'package:flutter_cyclade/pages/profile.dart';
 import 'package:flutter_cyclade/pages/evaluations.dart';
 import 'package:flutter_cyclade/pages/graph.dart';
