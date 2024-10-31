@@ -45,17 +45,12 @@ class _MyHomePageState extends State<AccueilPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Accueil"), // Titre de la barre d'application
+        title: Text("Bonjour "+userData.prenom.toString()), // Titre de la barre d'application
         automaticallyImplyLeading: false, // Retire le bouton de retour par défaut
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start, // Alignement des éléments en début de colonne
         children: [
-          Text(userData.id.toString()), // Affiche l'ID de l'utilisateur
-          Text("Nom: " + userData.nom.toString()), // Affiche le nom de l'utilisateur
-          Text("Prénom: " + userData.prenom.toString()), // Affiche le prénom de l'utilisateur
-          Text("Email: " + userData.email.toString()), // Affiche l'email de l'utilisateur
-
           // Boutons "Inscription" et "Connexion" visibles uniquement si l'utilisateur est non connecté (id=0)
           if (userData.id.toString() == "0")
             ElevatedButton(
