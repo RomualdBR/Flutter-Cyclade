@@ -16,4 +16,31 @@ class ResultService {
       return "Erreur de création du resultat-test";
     }
   }
+
+  static Future<List<ResultatTest>> getAllResults() async {
+    if (!await MongoDatabase.ensureConnection()) return []; // Vérifie la connexion
+
+    try {
+      final resultsData = await MongoDatabase.resultatTest.find().toList();
+      // Convertit les données JSON en objets Test
+      return resultsData.map((json) => ResultatTest.fromJson(json)).toList();
+    } catch (e) {
+      print('Error fetching tests: ${e.toString()}'); // Log en cas d'erreur de récupération
+      return [];
+    }
+  }
+
+  static Future<List<ResultatTest>> getAllResultsByUserAndTest(String userId, String testId) async {
+    if (!await MongoDatabase.ensureConnection()) return []; // Vérifie la connexion
+
+    try {
+      final resultsData = await MongoDatabase.resultatTest.find({'id_test':testId,'id_user':userId}).toList();
+      // Convertit les données JSON en objets Test
+      return resultsData.map((json) => ResultatTest.fromJson(json)).toList();
+    } catch (e) {
+      print('Error fetching tests: ${e.toString()}'); // Log en cas d'erreur de récupération
+      return [];
+    }
+  }
+
 }
