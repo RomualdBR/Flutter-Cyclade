@@ -12,14 +12,11 @@ class MotivationProvider extends ChangeNotifier {
       _motivations = await MotivationService.getAllMotivations();
       notifyListeners(); // Notifie les changements pour les mises à jour automatiques
     } catch (e) {
-      // Gérer les erreurs de chargement
       print("Erreur lors du chargement des motivations: $e");
     }
   }
 
   void updateMotivation(String newMotivationId) {
-    // Fonction pour mettre à jour la motivation sélectionnée si nécessaire
-    // Tu peux ajouter ici d'autres fonctionnalités pour gérer la motivation sélectionnée
     notifyListeners();
   }
 }

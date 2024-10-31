@@ -14,6 +14,7 @@ class UserProvider extends ChangeNotifier {
       var result = await MongoDatabase.update(updatedUser);
       if (result == "success") {
         _user = updatedUser;
+        userData = _user;
         formErrorText = "";
         notifyListeners();
       } else {
@@ -33,9 +34,10 @@ class UserProvider extends ChangeNotifier {
       age: 0,
       adresse: "adresse",
       role: false,
-      id_motivation: "0",
+      id_motivation: "672121aca877fe1dda000000",
       mot_de_passe: "mot_de_passe",
     );
+    userData = _user;
     notifyListeners();
   }
 }

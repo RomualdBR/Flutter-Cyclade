@@ -4,7 +4,7 @@ import 'package:flutter_cyclade/services/testService.dart';
 
 // Page pour éditer les informations d'un test existant
 class EditTestPage extends StatefulWidget {
-  final Test test; // Test à modifier
+  final Test test;
 
   const EditTestPage({Key? key, required this.test}) : super(key: key);
 

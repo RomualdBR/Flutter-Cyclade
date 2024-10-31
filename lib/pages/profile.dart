@@ -7,7 +7,6 @@ import 'package:flutter_cyclade/UserProvider.dart';
 import 'package:flutter_cyclade/models/motivationModel.dart';
 import 'package:flutter_cyclade/motivationProvider.dart';
 
-
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -32,6 +31,10 @@ class _MyHomePageState extends State<ProfilePage> {
     Provider.of<MotivationProvider>(context, listen: false).loadMotivations();
   }
 
+  void accueilPressed() {
+    Navigator.pushNamed(context, '/'); // Navigue vers la page d'accueil
+  }
+
   // Construction de la page de profil
   @override
   Widget build(BuildContext context) {
@@ -52,7 +55,7 @@ class _MyHomePageState extends State<ProfilePage> {
             Text("Age : ${userProvider.user.age}"),
             Text("Motivation : ${userProvider.user.id_motivation}"),
             if (userData.role == true) Text("Rôle : " + userData.role.toString()),
-            
+
             // Champs pour modifier les informations utilisateur
             TextFormField(
               decoration: const InputDecoration(labelText: "Nouvelle adresse"),
@@ -101,11 +104,10 @@ class _MyHomePageState extends State<ProfilePage> {
                 );
               }).toList(),
               onChanged: (value) => setState(() => _selectedMotivationId = value!),
-              validator: (value) => value == null || value.isEmpty
-                  ? 'Veuillez sélectionner une motivation'
-                  : null,
+              validator: (value) =>
+                  value == null || value.isEmpty ? 'Veuillez sélectionner une motivation' : null,
             ),
-            
+
             // Bouton pour mettre à jour les informations utilisateur
             ElevatedButton(
               onPressed: () {
@@ -124,17 +126,20 @@ class _MyHomePageState extends State<ProfilePage> {
               },
               child: const Text("Mettre à jour"),
             ),
-            
+
             // Message d'erreur si la mise à jour échoue
             if (formErrorText.isNotEmpty)
               Text(
                 formErrorText,
                 style: TextStyle(color: Colors.red),
               ),
-            
+
             // Bouton pour se déconnecter si l'utilisateur est connecté
             ElevatedButton(
-              onPressed: () => userProvider.disconnectUser(),
+              onPressed: () => {
+                userProvider.disconnectUser(),
+                Navigator.pushNamed(context, '/'),
+                },
               child: const Text("Se déconnecter"),
             ),
           ],

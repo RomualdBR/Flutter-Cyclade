@@ -22,11 +22,12 @@ class _ResultatsPageState extends State<ResultatsPage> {
     _loadPassedTests();
   }
 
+  // Initialement, tous les tests sont affichés
   Future<void> _loadPassedTests() async {
     var tests = await MongoDatabase.getPassedTests();
     setState(() {
       passedTests = tests;
-      filteredTests = tests; // Initialement, tous les tests sont affichés
+      filteredTests = tests; 
     });
   }
 
@@ -70,7 +71,7 @@ class _ResultatsPageState extends State<ResultatsPage> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Row(
               children: [
-                // Champ de recherche stylisé
+                // Champ de recherche
                 Expanded(
                   child: TextField(
                     decoration: InputDecoration(
@@ -91,7 +92,7 @@ class _ResultatsPageState extends State<ResultatsPage> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                // Sélecteur d'année stylisé
+                // Sélecteur d'année
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
                   decoration: BoxDecoration(
